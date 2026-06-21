@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MailBridge｜中小建設業のメール業務をAIが下ごしらえするWindowsアプリ</title>
+<meta name="description" content="MailBridgeは、受信メールをAIが「スルー／自動返信／要確認」に仕分けし、返信下書き・受注台帳入力・社内チャット通知まで下ごしらえする中小建設業向けWindowsデスクトップアプリ。今お使いのOutlook/Gmail(IMAP)のまま導入できます。">
+<meta property="og:title" content="MailBridge｜メール業務をAIが下ごしらえするWindowsアプリ">
+<meta property="og:description" content="メールを見て、仕分けて、下書きまで。中小建設業のメール業務をAIが下ごしらえ。人は確認するだけ。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/mailbridge-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="assets/mailbridge-cover.jpg">
+<link rel="icon" type="image/jpeg" href="assets/mailbridge-logo.jpg">
+<link rel="apple-touch-icon" href="assets/mailbridge-logo.jpg">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@600;700;900&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:    { DEFAULT:'#0f1c2e', 900:'#0b1626', 800:'#142336', 700:'#22334a' },
+          navy:   { DEFAULT:'#1c3354', 600:'#274463', 500:'#3a5878' },
+          slate2: '#5b6776',
+          line:   '#e4e9f0',
+          mist:   '#f5f7fa',
+          // アクセント1色（ロゴのシアン/ブルーに合わせた落ち着いたブルー）
+          accent: { DEFAULT:'#2f86c5', 600:'#236aa3', 500:'#56a5da', soft:'#e6f1fa' },
+        },
+        fontFamily: {
+          sans:  ['"Noto Sans JP"','sans-serif'],
+          serif: ['"Noto Serif JP"','serif'],
+        },
+        boxShadow: {
+          card: '0 8px 28px rgba(15,28,46,.07)',
+          lg2:  '0 22px 60px rgba(15,28,46,.14)',
+        },
+      }
+    }
+  }
+</script>
+<style>
+  html{scroll-behavior:smooth}
+  body{font-family:"Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.font-serif{font-family:"Noto Serif JP",serif}
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  .reveal.d1{transition-delay:.1s}.reveal.d2{transition-delay:.2s}.reveal.d3{transition-delay:.3s}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease}
+  .hero-glow{background:radial-gradient(60% 70% at 80% 0%,rgba(47,134,197,.26),transparent 60%)}
+</style>
+</head>
+<body class="text-ink bg-white">
+
+<!-- ===== Nav ===== -->
+<header id="nav" class="fixed top-0 inset-x-0 z-50 transition-all border-b border-transparent">
+  <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-2.5 font-serif font-black text-lg text-white" id="brand">
+      <span class="w-8 h-8 rounded-lg bg-accent grid place-items-center text-white text-sm font-sans font-bold">M</span>
+      MailBridge
+    </a>
+    <nav class="hidden md:flex items-center gap-7 text-sm" id="navLinks">
+      <a href="#problem" class="nav-a text-white/85 hover:text-accent transition">課題</a>
+      <a href="#how" class="nav-a text-white/85 hover:text-accent transition">使い方</a>
+      <a href="#features" class="nav-a text-white/85 hover:text-accent transition">特長</a>
+      <a href="#security" class="nav-a text-white/85 hover:text-accent transition">安心・セキュリティ</a>
+      <a href="#pricing" class="nav-a text-white/85 hover:text-accent transition">料金</a>
+      <a href="#faq" class="nav-a text-white/85 hover:text-accent transition">FAQ</a>
+      <a href="https://github.com/honma-honma/mailbridge-releases/releases/latest" class="bg-accent hover:bg-accent-600 text-white font-bold px-4 py-2 rounded-full transition">無料ではじめる</a>
+    </nav>
+    <button id="navToggle" class="md:hidden p-2" aria-label="メニュー">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" id="burger"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-line shadow-card">
+    <div class="px-5 py-2 flex flex-col">
+      <a href="#problem" class="mob-a py-3 text-slate2">課題</a>
+      <a href="#how" class="mob-a py-3 text-slate2">使い方</a>
+      <a href="#features" class="mob-a py-3 text-slate2">特長</a>
+      <a href="#security" class="mob-a py-3 text-slate2">安心・セキュリティ</a>
+      <a href="#pricing" class="mob-a py-3 text-slate2">料金</a>
+      <a href="#faq" class="mob-a py-3 text-slate2">FAQ</a>
+      <a href="https://github.com/honma-honma/mailbridge-releases/releases/latest" class="mob-a my-2 bg-accent text-white font-bold px-4 py-3 rounded-full text-center">無料ではじめる</a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section id="top" class="relative overflow-hidden bg-gradient-to-br from-ink-800 via-ink to-ink-900 text-white">
+  <div class="absolute inset-0 hero-glow"></div>
+  <div class="relative max-w-6xl mx-auto px-5 pt-28 pb-20 md:pt-36 md:pb-24 grid lg:grid-cols-[1.05fr_.95fr] gap-12 items-center">
+    <div class="reveal">
+      <span class="inline-flex items-center gap-2 text-accent-500 text-xs font-bold tracking-widest mb-5">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent-500"></span>WINDOWS デスクトップアプリ
+      </span>
+      <h1 class="text-3xl md:text-5xl font-black leading-[1.4]">
+        メールを見て、仕分けて、<br><span class="text-accent-500">下書きまで。</span>
+      </h1>
+      <p class="mt-6 text-base md:text-lg text-white/80 leading-relaxed max-w-xl">
+        中小建設業のメール業務を、AIが「下ごしらえ」するWindowsアプリ。受信メールを自動で仕分け、返信の下書きや台帳入力まで用意します。<strong class="text-white">人は最後に確認するだけ。</strong>
+      </p>
+      <div class="mt-9 flex flex-wrap gap-3.5">
+        <a href="https://github.com/honma-honma/mailbridge-releases/releases/latest" class="bg-accent hover:bg-accent-600 text-white font-bold px-7 py-4 rounded-full shadow-lg2 transition hover:-translate-y-0.5 inline-flex items-center gap-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+          無料ではじめる（Windows版をダウンロード）
+        </a>
+        <a href="#how" class="border border-white/40 hover:bg-white hover:text-ink text-white font-bold px-7 py-4 rounded-full transition">使い方を見る</a>
+      </div>
+      <p class="mt-4 text-xs text-white/55 max-w-md leading-relaxed">
+        ※Windows 10／11 専用アプリです（macOS・スマートフォンには対応していません）。<br>※未署名アプリのため、初回起動時にWindowsの警告が出る場合があります（「詳細情報」→「実行」で進めます）。
+      </p>
+    </div>
+
+    <!-- ブランドロゴ -->
+    <div class="reveal d1">
+      <div class="relative rounded-2xl bg-white/[0.04] border border-white/12 shadow-lg2 p-3 max-w-md mx-auto">
+        <img src="assets/mailbridge-logo.jpg" alt="MailBridge — AI MAIL AUTOMATION" width="800" height="800" class="w-full rounded-xl">
+      </div>
+      <p class="text-center text-[11px] text-white/40 mt-3">※アプリのスクリーンショットに差し替えると、より伝わりやすくなります。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 課題 ===== -->
+<section id="problem" class="py-20 md:py-24 bg-white">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center mb-14 reveal">
+      <span class="text-accent font-bold text-xs tracking-widest">PROBLEM</span>
+      <h2 class="text-2xl md:text-4xl font-black text-navy mt-3">毎日のメール、こんな手間に追われていませんか？</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="reveal rounded-2xl bg-mist border border-line p-7">
+        <div class="w-12 h-12 rounded-xl bg-white shadow-card grid place-items-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        </div>
+        <h3 class="font-bold text-navy text-lg mb-2">確認・仕分け・入力に時間が消える</h3>
+        <p class="text-slate2 text-sm leading-relaxed">受信したメールを読み、振り分け、返信し、受注台帳に転記。この一連の作業だけで毎日まとまった時間が奪われています。</p>
+      </div>
+      <div class="reveal d1 rounded-2xl bg-mist border border-line p-7">
+        <div class="w-12 h-12 rounded-xl bg-white shadow-card grid place-items-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="1.8"><path d="M12 9v4m0 4h.01M10.3 3.9l-8 14A2 2 0 004 21h16a2 2 0 001.7-3l-8-14a2 2 0 00-3.4 0z"/></svg>
+        </div>
+        <h3 class="font-bold text-navy text-lg mb-2">重要メールの見落とし・対応漏れ</h3>
+        <p class="text-slate2 text-sm leading-relaxed">大量のメールに埋もれ、急ぎの問い合わせや見積依頼への返信が遅れてしまう。気づかぬうちに信頼を損ねるリスクがあります。</p>
+      </div>
+      <div class="reveal d2 rounded-2xl bg-mist border border-line p-7">
+        <div class="w-12 h-12 rounded-xl bg-white shadow-card grid place-items-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/></svg>
+        </div>
+        <h3 class="font-bold text-navy text-lg mb-2">担当者しか分からない属人化</h3>
+        <p class="text-slate2 text-sm leading-relaxed">「あの案件の状況はあの人しか知らない」。担当者が不在になると業務が止まり、引き継ぎにも苦労します。</p>
+      </div>
+    </div>
+    <p class="text-center mt-12 text-lg font-bold text-navy reveal">
+      MailBridgeは「<span class="text-accent">AIが下ごしらえ → 人は確認するだけ</span>」で、この手間を圧縮します。
+    </p>
+  </div>
+</section>
+
+<!-- ===== 使い方 3ステップ ===== -->
+<section id="how" class="py-20 md:py-24 bg-mist">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center mb-14 reveal">
+      <span class="text-accent font-bold text-xs tracking-widest">HOW IT WORKS</span>
+      <h2 class="text-2xl md:text-4xl font-black text-navy mt-3">導入は、かんたん3ステップ</h2>
+      <p class="text-slate2 mt-3">今お使いのメール環境はそのまま。難しい準備は要りません。</p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="reveal relative rounded-2xl bg-white border border-line p-8 shadow-card">
+        <div class="font-serif font-black text-5xl text-accent-soft leading-none">01</div>
+        <h3 class="font-bold text-navy text-lg mt-2 mb-2">ダウンロードしてインストール</h3>
+        <p class="text-slate2 text-sm leading-relaxed">Windows用インストーラをダウンロードして実行するだけ。Python等の事前準備は不要です。</p>
+      </div>
+      <div class="reveal d1 relative rounded-2xl bg-white border border-line p-8 shadow-card">
+        <div class="font-serif font-black text-5xl text-accent-soft leading-none">02</div>
+        <h3 class="font-bold text-navy text-lg mt-2 mb-2">メール接続＆取引先を登録</h3>
+        <p class="text-slate2 text-sm leading-relaxed">Outlook / IMAPのメールアカウントを接続し、処理したい取引先を「顧客マスタ」に登録します。</p>
+      </div>
+      <div class="reveal d2 relative rounded-2xl bg-white border border-line p-8 shadow-card">
+        <div class="font-serif font-black text-5xl text-accent-soft leading-none">03</div>
+        <h3 class="font-bold text-navy text-lg mt-2 mb-2">「メールを処理」を押すだけ</h3>
+        <p class="text-slate2 text-sm leading-relaxed">AIが仕分け・下書き・台帳入力まで下ごしらえ。あとは内容を確認して送るだけです。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 特長グリッド ===== -->
+<section id="features" class="py-20 md:py-24 bg-white">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center mb-14 reveal">
+      <span class="text-accent font-bold text-xs tracking-widest">FEATURES</span>
+      <h2 class="text-2xl md:text-4xl font-black text-navy mt-3">現場の手間を減らす、7つの機能</h2>
+      <p class="text-slate2 mt-3 max-w-2xl mx-auto">「下ごしらえはAI、最終判断は人」。安全を最優先に設計しています。</p>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- 1 -->
+      <div class="reveal rounded-2xl border border-line p-7 hover:shadow-lg2 hover:-translate-y-1 transition bg-white">
+        <div class="w-12 h-12 rounded-xl bg-accent-soft grid place-items-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="1.8"><path d="M3 7h18M3 12h18M3 17h10"/></svg>
+        </div>
+        <h3 class="font-bold text-navy text-lg mb-2">AI自動仕分け</h3>
+        <p class="text-slate2 text-sm leading-relaxed">受信メールを「スルー／自動返信／要確認」に振り分け。<strong class="text-navy">迷ったら必ず「要確認」に寄せて</strong>、誤送信を防ぐ安全設計です。</p>
+      </div>
+      <!-- 2 -->
+      <div class="reveal d1 rounded-2xl border border-line p-7 hover:shadow-lg2 hover:-translate-y-1 transition bg-white">
+        <div class="w-12 h-12 rounded-xl bg-accent-soft grid place-items-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+        </div>
+        <h3 class="font-bold text-navy text-lg mb-2">返信下書きの自動生成</h3>
+        <p class="text-slate2 text-sm leading-relaxed">AIが返信の下書きを作成。人が確認・修正して送信します。署名も自動で付与されます。</p>
+      </div>
+      <!-- 3 -->
+      <div class="reveal d2 rounded-2xl border border-line p-7 hover:shadow-lg2 hover:-translate-y-1 transition bg-white">
+        <div class="w-12 h-12 rounded-xl bg-accent-soft grid place-items-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <h3 class="font-bold text-navy text-lg mb-2">受注台帳へ自動入力</h3>
+        <p class="text-slate2 text-sm leading-relaxed">条件を満たす確実なメールのみ、Googleスプレッド/Excelへ自動記帳。<strong class="text-navy">「要確認」はスキップ</strong>します。</p>
+      </div>
+      <!-- 4 -->
+      <div class="reveal rounded-2xl border border-line p-7 hover:shadow-lg2 hover:-translate-y-1 transition bg-white">
+        <div class="w-12 h-12 rounded-xl bg-accent-soft grid place-items-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <h3 class="font-bold text-navy text-lg mb-2">社内チャット連携</h3>
+        <p class="text-slate2 text-sm leading-relaxed">要確認メールを「案件カード」として社内に通知・共有。担当者以外も状況を把握でき、属人化を防ぎます。</p>
+      </div>
+      <!-- 5 -->
+      <div class="reveal d1 rounded-2xl border border-line p-7 hover:shadow-lg2 hover:-translate-y-1 transition bg-white">
+        <div class="w-12 h-12 rounded-xl bg-accent-soft grid place-items-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+        </div>
+        <h3 class="font-bold text-navy text-lg mb-2">顧客マスタで対象を限定</h3>
+        <p class="text-slate2 text-sm leading-relaxed">登録した取引先からのメールだけを処理。<strong class="text-navy">無関係なメールには一切触りません。</strong></p>
+      </div>
+      <!-- 6 -->
+      <div class="reveal d2 rounded-2xl border border-line p-7 hover:shadow-lg2 hover:-translate-y-1 transition bg-white">
+        <div class="w-12 h-12 rounded-xl bg-accent-soft grid place-items-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M4 8l8 5 8-5"/></svg>
+        </div>
+        <h3 class="font-bold text-navy text-lg mb-2">Outlook / IMAP どちらでも</h3>
+        <p class="text-slate2 text-sm leading-relaxed">今のメール環境のまま導入できます。メールアドレスを変える必要はありません。</p>
+      </div>
+      <!-- 7 -->
+      <div class="reveal rounded-2xl border border-line p-7 hover:shadow-lg2 hover:-translate-y-1 transition bg-white md:col-span-2 lg:col-span-1">
+        <div class="w-12 h-12 rounded-xl bg-accent-soft grid place-items-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+        </div>
+        <h3 class="font-bold text-navy text-lg mb-2">マルチAI対応（BYOK）</h3>
+        <p class="text-slate2 text-sm leading-relaxed">Gemini / OpenAI / Claude / Ollama を切替可能。AIキーは会社で1つ設定すれば、全メンバーに自動で適用されます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 安心・セキュリティ ===== -->
+<section id="security" class="py-20 md:py-24 bg-ink text-white relative overflow-hidden">
+  <div class="absolute inset-0 hero-glow opacity-70"></div>
+  <div class="relative max-w-6xl mx-auto px-5">
+    <div class="text-center mb-14 reveal">
+      <span class="text-accent-500 font-bold text-xs tracking-widest">SECURITY &amp; TRUST</span>
+      <h2 class="text-2xl md:text-4xl font-black mt-3">大切なメールだから、安心して使える設計</h2>
+      <p class="text-white/70 mt-3 max-w-2xl mx-auto">情報の取り扱いとAIの限界について、正直にお伝えします。</p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+      <div class="reveal flex gap-4 rounded-2xl bg-white/[0.06] border border-white/12 p-6">
+        <span class="shrink-0 w-11 h-11 rounded-xl bg-accent/20 grid place-items-center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#56a5da" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </span>
+        <div><h3 class="font-bold mb-1">メール本文はサーバーに保存しない</h3><p class="text-white/65 text-sm leading-relaxed">サーバーに記録するのは判定理由・要約のみ。メール本文そのものは保存しません。</p></div>
+      </div>
+      <div class="reveal d1 flex gap-4 rounded-2xl bg-white/[0.06] border border-white/12 p-6">
+        <span class="shrink-0 w-11 h-11 rounded-xl bg-accent/20 grid place-items-center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#56a5da" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </span>
+        <div><h3 class="font-bold mb-1">パスワード・AIキーは端末内に暗号化保存</h3><p class="text-white/65 text-sm leading-relaxed">メールのパスワードやAIキーは端末内で暗号化して保管し、原則サーバーには送りません。</p></div>
+      </div>
+      <div class="reveal flex gap-4 rounded-2xl bg-white/[0.06] border border-white/12 p-6">
+        <span class="shrink-0 w-11 h-11 rounded-xl bg-accent/20 grid place-items-center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#56a5da" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        </span>
+        <div><h3 class="font-bold mb-1">会社ごとにデータを分離</h3><p class="text-white/65 text-sm leading-relaxed">マルチテナント・行レベルセキュリティにより、他社とデータが混ざることはありません。</p></div>
+      </div>
+      <div class="reveal d1 flex gap-4 rounded-2xl bg-white/[0.06] border border-white/12 p-6">
+        <span class="shrink-0 w-11 h-11 rounded-xl bg-accent/20 grid place-items-center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#56a5da" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        </span>
+        <div><h3 class="font-bold mb-1">AIは万能ではありません（正直に）</h3><p class="text-white/65 text-sm leading-relaxed">AIの分類・返信には誤りが含まれる可能性があります。重要なメールは必ず人が確認する運用を推奨します。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 料金表 ===== -->
+<section id="pricing" class="py-20 md:py-24 bg-mist">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center mb-14 reveal">
+      <span class="text-accent font-bold text-xs tracking-widest">PRICING</span>
+      <h2 class="text-2xl md:text-4xl font-black text-navy mt-3">料金プラン</h2>
+      <p class="text-slate2 mt-3 max-w-2xl mx-auto">すべて月額・税込のサブスクリプション。無料プランあり。<strong class="text-navy">お申し込み・プラン変更・解約はアプリ内から</strong>いつでも可能です。</p>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
+      <!-- 無料 -->
+      <div class="reveal rounded-2xl bg-white border border-line p-7 shadow-card flex flex-col">
+        <h3 class="font-bold text-navy text-lg">無料</h3>
+        <div class="mt-3 font-serif font-black text-3xl text-navy">¥0<span class="font-sans text-sm font-medium text-slate2">/月</span></div>
+        <p class="text-xs text-slate2 mt-1 mb-5">まずは試してみたい方に</p>
+        <ul class="space-y-2.5 text-sm text-ink flex-1 mb-6">
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>取引先ドメイン 1件</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>メンバー1名</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>メール分類・要確認・下書き</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>ローカルExcel出力</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>返信テンプレート</li>
+        </ul>
+        <a href="https://github.com/honma-honma/mailbridge-releases/releases/latest" class="text-center border border-line hover:border-accent hover:text-accent text-navy font-bold px-5 py-3 rounded-full transition">無料ではじめる</a>
+      </div>
+      <!-- スタンダード -->
+      <div class="reveal d1 rounded-2xl bg-white border border-line p-7 shadow-card flex flex-col">
+        <h3 class="font-bold text-navy text-lg">スタンダード</h3>
+        <div class="mt-3 font-serif font-black text-3xl text-navy">¥3,000<span class="font-sans text-sm font-medium text-slate2">/月</span></div>
+        <p class="text-xs text-slate2 mt-1 mb-5">台帳連携を始めたい方に</p>
+        <ul class="space-y-2.5 text-sm text-ink flex-1 mb-6">
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>無料プランの全機能</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>取引先ドメイン 3件</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Googleスプレッド・GAS連携</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>受注台帳への自動入力</li>
+        </ul>
+        <a href="https://github.com/honma-honma/mailbridge-releases/releases/latest" class="text-center border border-line hover:border-accent hover:text-accent text-navy font-bold px-5 py-3 rounded-full transition">アプリ内で申し込み</a>
+      </div>
+      <!-- プロ（おすすめ） -->
+      <div class="reveal d2 relative rounded-2xl bg-white border-2 border-accent p-7 shadow-lg2 flex flex-col lg:-translate-y-2">
+        <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap">おすすめ</span>
+        <h3 class="font-bold text-navy text-lg">プロ</h3>
+        <div class="mt-3 font-serif font-black text-3xl text-navy">¥10,000<span class="font-sans text-sm font-medium text-slate2">/月</span></div>
+        <p class="text-xs text-slate2 mt-1 mb-5">チームで本格運用する方に</p>
+        <ul class="space-y-2.5 text-sm text-ink flex-1 mb-6">
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>スタンダードの全機能</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>取引先ドメイン 5件</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>メンバー5名</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>自動返信の自動送信</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>プロンプト編集</li>
+        </ul>
+        <a href="https://github.com/honma-honma/mailbridge-releases/releases/latest" class="text-center bg-accent hover:bg-accent-600 text-white font-bold px-5 py-3 rounded-full transition">アプリ内で申し込み</a>
+      </div>
+      <!-- アンリミテッド -->
+      <div class="reveal d3 rounded-2xl bg-navy text-white border border-navy p-7 shadow-card flex flex-col">
+        <h3 class="font-bold text-lg">アンリミテッド</h3>
+        <div class="mt-3 font-serif font-black text-3xl">¥30,000<span class="font-sans text-sm font-medium text-white/60">/月</span></div>
+        <p class="text-xs text-white/55 mt-1 mb-5">規模を問わず全機能を使う方に</p>
+        <ul class="space-y-2.5 text-sm text-white/90 flex-1 mb-6">
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#56a5da" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>取引先ドメイン 無制限</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#56a5da" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>メンバー 無制限</li>
+          <li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#56a5da" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>全機能を利用可能</li>
+        </ul>
+        <a href="https://github.com/honma-honma/mailbridge-releases/releases/latest" class="text-center bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold px-5 py-3 rounded-full transition">アプリ内で申し込み</a>
+      </div>
+    </div>
+    <p class="text-center text-xs text-slate2 mt-8 max-w-2xl mx-auto">※ドメイン数は1アカウントあたりの登録上限です。オンライン決済（クレジットカード）に対応。プラン変更・解約はアプリ内からいつでも可能です。</p>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section id="faq" class="py-20 md:py-24 bg-white">
+  <div class="max-w-3xl mx-auto px-5">
+    <div class="text-center mb-12 reveal">
+      <span class="text-accent font-bold text-xs tracking-widest">FAQ</span>
+      <h2 class="text-2xl md:text-4xl font-black text-navy mt-3">よくあるご質問</h2>
+    </div>
+    <div class="space-y-3" id="faqList">
+      <div class="faq-item rounded-xl border border-line bg-white overflow-hidden">
+        <button class="faq-q w-full text-left px-6 py-5 flex justify-between items-center gap-4 font-serif font-bold text-navy">
+          <span>対応しているメールソフトは？</span>
+          <svg class="ico shrink-0 text-accent transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-a"><p class="px-6 pb-5 text-slate2 text-sm leading-relaxed">Outlook、およびIMAPに対応したメール（Gmail等）でご利用いただけます。今お使いのメールアドレス・環境をそのままに導入でき、アドレスを変更する必要はありません。</p></div>
+      </div>
+      <div class="faq-item rounded-xl border border-line bg-white overflow-hidden">
+        <button class="faq-q w-full text-left px-6 py-5 flex justify-between items-center gap-4 font-serif font-bold text-navy">
+          <span>AIの精度はどのくらい？間違えませんか？</span>
+          <svg class="ico shrink-0 text-accent transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-a"><p class="px-6 pb-5 text-slate2 text-sm leading-relaxed">AIの分類・返信には誤りが含まれる可能性があり、100%の正確さは保証できません。MailBridgeは「迷ったら要確認に寄せる」安全設計で誤送信を防ぎつつ、重要なメールは必ず人が確認する運用を推奨しています。あくまで「下ごしらえ」を担うツールとお考えください。</p></div>
+      </div>
+      <div class="faq-item rounded-xl border border-line bg-white overflow-hidden">
+        <button class="faq-q w-full text-left px-6 py-5 flex justify-between items-center gap-4 font-serif font-bold text-navy">
+          <span>料金や支払い方法は？無料で使えますか？</span>
+          <svg class="ico shrink-0 text-accent transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-a"><p class="px-6 pb-5 text-slate2 text-sm leading-relaxed">無料プラン（¥0）からお使いいただけます。有料プランは月額・税込のサブスクリプションで、クレジットカードによるオンライン決済に対応。お申し込みはアプリ内のプラン画面から行います。</p></div>
+      </div>
+      <div class="faq-item rounded-xl border border-line bg-white overflow-hidden">
+        <button class="faq-q w-full text-left px-6 py-5 flex justify-between items-center gap-4 font-serif font-bold text-navy">
+          <span>解約はいつでもできますか？</span>
+          <svg class="ico shrink-0 text-accent transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-a"><p class="px-6 pb-5 text-slate2 text-sm leading-relaxed">はい。プラン変更・解約はアプリ内からいつでも可能です。最低利用期間の縛りはありません。</p></div>
+      </div>
+      <div class="faq-item rounded-xl border border-line bg-white overflow-hidden">
+        <button class="faq-q w-full text-left px-6 py-5 flex justify-between items-center gap-4 font-serif font-bold text-navy">
+          <span>メールやデータの安全性は大丈夫ですか？</span>
+          <svg class="ico shrink-0 text-accent transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-a"><p class="px-6 pb-5 text-slate2 text-sm leading-relaxed">メール本文はサーバーに保存せず、記録するのは判定理由・要約のみです。メールのパスワードやAIキーは端末内に暗号化して保存し、原則サーバーには送りません。データは会社ごとに分離（マルチテナント・行レベルセキュリティ）して管理しています。</p></div>
+      </div>
+      <div class="faq-item rounded-xl border border-line bg-white overflow-hidden">
+        <button class="faq-q w-full text-left px-6 py-5 flex justify-between items-center gap-4 font-serif font-bold text-navy">
+          <span>対応OSは？インストールに専門知識は必要ですか？</span>
+          <svg class="ico shrink-0 text-accent transition-transform" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-a"><p class="px-6 pb-5 text-slate2 text-sm leading-relaxed">本アプリは <strong class="text-navy">Windows 10／11 専用</strong>です（macOS・スマートフォンには対応していません）。専門知識は不要で、インストーラ同梱のため Python 等の事前準備も必要ありません。なお未署名アプリのため、初回起動時にWindowsの警告が表示される場合があります（「詳細情報」→「実行」で進めます）。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 最終CTA ===== -->
+<section class="py-16 md:py-20 bg-gradient-to-br from-navy to-ink text-white">
+  <div class="max-w-4xl mx-auto px-5 text-center reveal">
+    <h2 class="text-2xl md:text-4xl font-black leading-relaxed">まずは無料で、メールの「下ごしらえ」を体験してください。</h2>
+    <p class="text-white/75 mt-4">導入の相談・ご質問もお気軽にどうぞ。無理な営業はいたしません。</p>
+    <div class="mt-9 flex flex-wrap justify-center gap-3.5">
+      <a href="https://github.com/honma-honma/mailbridge-releases/releases/latest" class="bg-accent hover:bg-accent-600 text-white font-bold px-8 py-4 rounded-full shadow-lg2 transition hover:-translate-y-0.5">無料ではじめる（Windows版をダウンロード）</a>
+      <a href="mailto:yh.006611@gmail.com" class="border border-white/40 hover:bg-white hover:text-ink text-white font-bold px-8 py-4 rounded-full transition">お問い合わせ</a>
+    </div>
+    <p class="mt-4 text-xs text-white/50">※Windows 10／11 専用アプリです（macOS・スマートフォンには対応していません）。<br>※未署名アプリのため、初回起動時にWindowsの警告が出る場合があります（「詳細情報」→「実行」で進めます）。</p>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="bg-ink-900 text-white/70 pt-14 pb-8">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="grid md:grid-cols-[1.4fr_1fr_1fr] gap-10">
+      <div>
+        <div class="flex items-center gap-2.5 font-serif font-black text-lg text-white mb-3">
+          <span class="w-8 h-8 rounded-lg bg-accent grid place-items-center text-white text-sm font-sans font-bold">M</span>MailBridge
+        </div>
+        <p class="text-sm text-white/55 leading-relaxed max-w-sm">メールを見て、仕分けて、下書きまで。中小建設業のメール業務をAIが下ごしらえするWindowsアプリ。</p>
+      </div>
+      <div>
+        <h4 class="text-white font-bold text-sm mb-3">メニュー</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#features" class="hover:text-accent transition">特長</a></li>
+          <li><a href="#pricing" class="hover:text-accent transition">料金プラン</a></li>
+          <li><a href="#faq" class="hover:text-accent transition">よくある質問</a></li>
+          <li><a href="https://github.com/honma-honma/mailbridge-releases/releases/latest" class="hover:text-accent transition">ダウンロード</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-bold text-sm mb-3">規約・お問い合わせ</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="tokushoho.html" class="hover:text-accent transition">特定商取引法に基づく表記</a></li>
+          <li><a href="terms.html" class="hover:text-accent transition">利用規約</a></li>
+          <li><a href="privacy.html" class="hover:text-accent transition">プライバシーポリシー</a></li>
+          <li><a href="mailto:yh.006611@gmail.com" class="hover:text-accent transition">お問い合わせ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/45">
+      <p>運営者：本間　裕太</p>
+      <p>© 2026 MailBridge. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Navbar scroll style
+  var nav = document.getElementById('nav');
+  var brand = document.getElementById('brand');
+  var navAs = document.querySelectorAll('.nav-a');
+  var burger = document.getElementById('burger');
+  function onScroll(){
+    var s = window.scrollY > 24;
+    nav.classList.toggle('bg-white/95', s);
+    nav.classList.toggle('backdrop-blur', s);
+    nav.classList.toggle('shadow-card', s);
+    nav.classList.toggle('border-line', s);
+    brand.classList.toggle('text-white', !s);
+    brand.classList.toggle('text-navy', s);
+    navAs.forEach(function(a){
+      a.classList.toggle('text-white/85', !s);
+      a.classList.toggle('text-slate2', s);
+    });
+    burger.setAttribute('stroke', s ? '#1c3354' : '#fff');
+  }
+  onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
+
+  // Mobile menu
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('mobileMenu');
+  toggle.addEventListener('click', function(){ menu.classList.toggle('hidden'); });
+  document.querySelectorAll('.mob-a').forEach(function(a){
+    a.addEventListener('click', function(){ menu.classList.add('hidden'); });
+  });
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-q').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.closest('.faq-item');
+      var ans = item.querySelector('.faq-a');
+      var ico = btn.querySelector('.ico');
+      var open = item.dataset.open === '1';
+      document.querySelectorAll('.faq-item').forEach(function(i){
+        i.dataset.open = '0';
+        i.querySelector('.faq-a').style.maxHeight = null;
+        i.querySelector('.ico').style.transform = '';
+      });
+      if(!open){
+        item.dataset.open = '1';
+        ans.style.maxHeight = ans.scrollHeight + 'px';
+        ico.style.transform = 'rotate(45deg)';
+      }
+    });
+  });
+
+  // Scroll reveal (Intersection Observer)
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+</script>
+</body>
+</html>
