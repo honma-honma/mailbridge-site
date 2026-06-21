@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ダウンロードとインストール手順｜MailBridge</title>
+<meta name="description" content="MailBridge（Windows専用アプリ）のダウンロード方法とインストール手順を、画面つきでやさしく解説します。">
+<meta name="robots" content="all">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
+<link rel="icon" type="image/jpeg" href="assets/mailbridge-logo.jpg">
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { ink:{DEFAULT:'#0f1c2e',900:'#0b1626'}, navy:'#1c3354', slate2:'#5b6776', line:'#e4e9f0', mist:'#f5f7fa',
+      accent:{DEFAULT:'#2f86c5',600:'#236aa3',500:'#56a5da',soft:'#e6f1fa'} },
+    fontFamily: { sans:['"Noto Sans JP"','sans-serif'], serif:['"Noto Serif JP"','serif'] },
+    boxShadow: { card:'0 8px 28px rgba(15,28,46,.07)', lg2:'0 22px 60px rgba(15,28,46,.14)' },
+  }}}
+</script>
+<style>
+  body{font-family:"Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.font-serif{font-family:"Noto Serif JP",serif}
+</style>
+</head>
+<body class="bg-mist text-ink">
+
+<!-- Topbar -->
+<div class="bg-ink text-white">
+  <div class="max-w-3xl mx-auto px-5 h-16 flex items-center justify-between">
+    <a href="mailbridge_site.html" class="flex items-center gap-2.5 font-serif font-black text-lg">
+      <span class="w-8 h-8 rounded-lg bg-accent grid place-items-center text-white text-sm font-sans font-bold">M</span>MailBridge
+    </a>
+    <a href="mailbridge_site.html" class="text-sm text-white/75 hover:text-accent transition">← トップに戻る</a>
+  </div>
+</div>
+
+<div class="max-w-3xl mx-auto px-5 py-12 md:py-16">
+
+  <!-- Heading -->
+  <div class="text-center mb-10">
+    <span class="text-accent font-bold text-xs tracking-widest">DOWNLOAD</span>
+    <h1 class="text-2xl md:text-3xl font-black text-navy mt-3">ダウンロードとインストール手順</h1>
+    <p class="text-slate2 mt-3 text-sm md:text-base">はじめての方でも迷わないよう、順番に画面でご説明します。<br class="hidden md:block">所要時間は約5分。難しい操作はありません。</p>
+  </div>
+
+  <!-- 対応OS 注意 -->
+  <div class="rounded-xl bg-accent-soft border border-accent/30 p-4 md:p-5 mb-10 flex gap-3">
+    <svg class="shrink-0 mt-0.5" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#236aa3" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+    <p class="text-sm text-navy leading-relaxed"><strong>ご利用には Windows 10／11 のパソコンが必要です。</strong>macOS（Mac）・スマートフォン・タブレットには対応していません。</p>
+  </div>
+
+  <!-- Steps -->
+  <div class="space-y-5">
+
+    <!-- Step 1 -->
+    <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-7">
+      <div class="flex items-start gap-4">
+        <span class="shrink-0 w-10 h-10 rounded-full bg-accent text-white grid place-items-center font-serif font-black">1</span>
+        <div class="flex-1">
+          <h2 class="text-lg font-bold text-navy">下のボタンから「ダウンロードページ」を開く</h2>
+          <p class="text-slate2 text-sm mt-1.5 leading-relaxed">このページの下にある青いボタンを押すと、配布元（GitHub）のダウンロードページが新しいタブで開きます。GitHubは世界中で使われている、安全なソフト配布サービスです。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-7">
+      <div class="flex items-start gap-4">
+        <span class="shrink-0 w-10 h-10 rounded-full bg-accent text-white grid place-items-center font-serif font-black">2</span>
+        <div class="flex-1">
+          <h2 class="text-lg font-bold text-navy">「Assets（ファイル一覧）」の中から <span class="text-accent">.exe</span> を押す</h2>
+          <p class="text-slate2 text-sm mt-1.5 leading-relaxed">開いたページの下のほうに「Assets」という、ファイルが並んだ一覧があります。その中の<strong class="text-navy">「.exe」で終わるファイル</strong>（下の図の緑色の行）をクリックすると、ダウンロードが始まります。</p>
+
+          <!-- GitHub Assets mock -->
+          <div class="mt-4 rounded-xl border border-line overflow-hidden text-sm">
+            <div class="bg-mist px-4 py-2.5 text-slate2 font-bold border-b border-line flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5b6776" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>Assets
+            </div>
+            <div class="bg-white divide-y divide-line">
+              <div class="flex items-center justify-between px-4 py-3 bg-accent-soft ring-1 ring-accent/40">
+                <span class="flex items-center gap-2.5 font-bold text-navy min-w-0">
+                  <svg class="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#236aa3" stroke-width="1.8"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+                  <span class="truncate">MailBridge-Setup-x.x.x.exe</span>
+                </span>
+                <span class="shrink-0 text-[11px] font-bold text-white bg-accent px-2.5 py-1 rounded-full ml-2">これを押す</span>
+              </div>
+              <div class="flex items-center justify-between px-4 py-3 text-slate2/70">
+                <span class="flex items-center gap-2.5 min-w-0"><svg class="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab6c2" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.7l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.7l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg><span class="truncate">Source code (zip)</span></span>
+                <span class="shrink-0 text-[11px] text-slate2/60 ml-2">← 押さなくてOK</span>
+              </div>
+              <div class="flex items-center justify-between px-4 py-3 text-slate2/70">
+                <span class="flex items-center gap-2.5 min-w-0"><svg class="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab6c2" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.7l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.7l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg><span class="truncate">Source code (tar.gz)</span></span>
+                <span class="shrink-0 text-[11px] text-slate2/60 ml-2">← 押さなくてOK</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-xs text-slate2 mt-2.5">※ファイル名のバージョン番号（x.x.x の部分）は時期によって変わります。<strong class="text-navy">末尾が「.exe」のもの</strong>を選べば大丈夫です。「Source code」は開発者向けなので押す必要はありません。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-7">
+      <div class="flex items-start gap-4">
+        <span class="shrink-0 w-10 h-10 rounded-full bg-accent text-white grid place-items-center font-serif font-black">3</span>
+        <div class="flex-1">
+          <h2 class="text-lg font-bold text-navy">ダウンロードした <span class="text-accent">.exe</span> をダブルクリックして開く</h2>
+          <p class="text-slate2 text-sm mt-1.5 leading-relaxed">画面の下や「ダウンロード」フォルダに保存された <code class="bg-mist px-1.5 py-0.5 rounded text-navy text-xs">MailBridge-Setup-….exe</code> をダブルクリック。あとは画面の案内に沿って進めるだけでインストールが完了します。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 (警告対処) -->
+    <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-7">
+      <div class="flex items-start gap-4">
+        <span class="shrink-0 w-10 h-10 rounded-full bg-navy text-white grid place-items-center font-serif font-black">4</span>
+        <div class="flex-1">
+          <h2 class="text-lg font-bold text-navy">青い警告が出たら「詳細情報」→「実行」</h2>
+          <p class="text-slate2 text-sm mt-1.5 leading-relaxed">起動時に「<strong class="text-navy">Windows によって PC が保護されました</strong>」という青い画面が出ることがあります。これは、まだ署名登録をしていない新しいアプリで表示されるもので、故障やウイルスではありません。</p>
+          <div class="mt-3 rounded-lg bg-ink text-white/90 p-4 text-sm leading-relaxed">
+            <p class="font-bold text-white mb-1.5">操作のしかた</p>
+            <p>① 「<span class="text-accent-500 font-bold">詳細情報</span>」という小さな文字をクリック<br>
+            ② 下に出てくる「<span class="text-accent-500 font-bold">実行</span>」ボタンを押す</p>
+          </div>
+          <p class="text-xs text-slate2 mt-2.5">※どうしても不安な場合は、無理に進めず下記の連絡先までお問い合わせください。</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Download button -->
+  <div class="mt-10 text-center">
+    <a href="https://github.com/honma-honma/mailbridge-releases/releases/latest" target="_blank" rel="noopener"
+       class="inline-flex items-center gap-2.5 bg-accent hover:bg-accent-600 text-white font-bold text-base md:text-lg px-8 py-4 rounded-full shadow-lg2 transition hover:-translate-y-0.5">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      ダウンロードページを開く（GitHub）
+    </a>
+    <p class="text-xs text-slate2 mt-3">新しいタブで開きます。上の手順2にしたがって「.exe」を選んでください。</p>
+  </div>
+
+  <!-- Help -->
+  <div class="mt-12 rounded-2xl bg-white border border-line p-6 md:p-7 text-center shadow-card">
+    <h3 class="font-bold text-navy">うまくいかない・不安なときは</h3>
+    <p class="text-slate2 text-sm mt-2 leading-relaxed">ダウンロードやインストールでお困りの場合は、お気軽にご連絡ください。画面の状態を教えていただければサポートします。</p>
+    <a href="mailto:yh.006611@gmail.com" class="inline-block mt-4 border border-line hover:border-accent hover:text-accent text-navy font-bold px-6 py-3 rounded-full transition">メールで問い合わせる</a>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="bg-ink-900 text-white/55 py-8">
+  <div class="max-w-3xl mx-auto px-5 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs">
+    <a href="mailbridge_site.html" class="hover:text-accent transition">← MailBridge トップへ</a>
+    <p>運営者：本間　裕太　／　© 2026 MailBridge</p>
+  </div>
+</footer>
+
+</body>
+</html>
