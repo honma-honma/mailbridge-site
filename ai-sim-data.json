@@ -1,0 +1,148 @@
+{
+  "meta": {
+    "title": "MailBridge AIコスト/ローカルAI シミュレーション用データ",
+    "purpose": "HP掲載のシミュレーターが参照する元データ。MailBridgeが実際にAIを呼ぶ箇所・トークン規模に基づく。",
+    "appVersion": "0.8.1",
+    "generatedFrom": "backend/ai/{pipeline.py,prompts.py,extractor.py}, backend/main.py /process, src/components/forms.tsx",
+    "important": "価格は変動します。launch前に各社の公式価格で必ず再確認し、pricing.* を更新してください。"
+  },
+
+  "appUsage": {
+    "keyPoint": "MailBridgeは『顧客マスタに登録した送信元ドメインのメール』だけをAIに通す。未登録ドメインは分類の前に破棄され、AIを一切呼ばない（=課金されない）。よってコストの母数は『受信総数』ではなく『登録した取引先からのメール数』。",
+    "tokenAssumption": {
+      "note": "トークン数は文字数からの概算。日本語が中心のため『日本語1文字≈1トークン、ASCII/記号≈0.25トークン』で見積もり（やや多めの安全側）。モデルごとのトークナイザ差で±30%程度ぶれる。下のinputChars/outputCharsを使えばHP側で別の換算率も適用可。",
+      "jpCharsPerToken": 1.0,
+      "asciiCharsPerToken": 4.0
+    },
+    "calls": {
+      "classify": {
+        "label": "分類（スルー/自動返信/要確認＋意図判定）",
+        "when": "処理対象（=登録ドメイン）メール1通につき必ず1回",
+        "perRelevantEmail": 1,
+        "inputChars":  { "typical": 3500, "light": 2200, "heavy": 8500 },
+        "outputChars": { "typical": 220,  "light": 150,  "heavy": 320 },
+        "inputTokens":  { "typical": 3500, "light": 2200, "heavy": 8500 },
+        "outputTokens": { "typical": 220,  "light": 150,  "heavy": 320 },
+        "breakdown": "system約1400字 + 参照情報(顧客マスタ約20件で約1000字) + 件名/差出人 + 本文(最大4000字でカット) + 定型枠約200字"
+      },
+      "reply": {
+        "label": "返信下書きの生成",
+        "when": "(A)自動返信ONかつ定型と判定された分、または(B)要確認画面で『AI返信文を生成』を押した分のみ。処理時には作らない（API節約）。",
+        "perRelevantEmailDefault": 0.35,
+        "inputChars":  { "typical": 2400, "light": 1600, "heavy": 6500 },
+        "outputChars": { "typical": 500,  "light": 250,  "heavy": 900 },
+        "inputTokens":  { "typical": 2400, "light": 1600, "heavy": 6500 },
+        "outputTokens": { "typical": 500,  "light": 250,  "heavy": 900 },
+        "breakdown": "system約260字 + 参照情報 + 元メール本文(最大4000字) + 分類結果。出力は返信本文(署名はアプリ側で付与しトークン対象外)"
+      },
+      "extract": {
+        "label": "台帳（シート）への入力データ抽出",
+        "when": "シート連携あり(スタンダード以上)で、要確認メールのプレビュー表示時に各1回＋自動入力候補に各1回。要確認1通につきおよそ1回。",
+        "perRelevantEmailDefault": 0.6,
+        "inputChars":  { "typical": 2200, "light": 1500, "heavy": 6000 },
+        "outputChars": { "typical": 300,  "light": 150,  "heavy": 600 },
+        "inputTokens":  { "typical": 2200, "light": 1500, "heavy": 6000 },
+        "outputTokens": { "typical": 300,  "light": 150,  "heavy": 600 },
+        "breakdown": "system約900字 + 列定義(列数×約40字) + 本文(最大4000字)。出力は列名→値のJSON"
+      },
+      "setupOneTime": {
+        "label": "初期設定のみ(月額コストにはほぼ無関係)",
+        "suggestCustomers": "受信箱の送信元をAIが会社名に整理(初回一括登録時に1回・送信元ドメイン数ぶんをまとめて1リクエスト)",
+        "suggestMapping": "既存シートのヘッダーから抽出指示を提案(シート接続時に1回)"
+      }
+    }
+  },
+
+  "pricing": {
+    "currency": "USD",
+    "unit": "per 1,000,000 tokens",
+    "asOf": "2026-01（概算・要再確認）",
+    "usdJpyDefault": 155,
+    "disclaimer": "各社の公開価格に基づく概算。改定が多いので公開前に必ず最新の公式価格で更新すること。バッチ割引/キャッシュ割引/無料枠は未考慮。"
+  },
+
+  "cloudModels": [
+    { "provider": "gemini", "id": "gemini-2.5-flash", "label": "Gemini 2.5 Flash", "tier": "標準・推奨", "inputPer1M": 0.30, "outputPer1M": 2.50, "recommendedFor": "MailBridgeの既定。日本語・コスパ・速度のバランス最良", "verify": true },
+    { "provider": "gemini", "id": "gemini-2.0-flash", "label": "Gemini 2.0 Flash", "tier": "最安", "inputPer1M": 0.10, "outputPer1M": 0.40, "recommendedFor": "とにかく安く。分類用途中心なら十分", "verify": true },
+    { "provider": "gemini", "id": "gemini-2.5-pro", "label": "Gemini 2.5 Pro", "tier": "高精度", "inputPer1M": 1.25, "outputPer1M": 10.00, "recommendedFor": "難しい判断・複雑な返信。精度重視", "verify": true },
+    { "provider": "openai", "id": "gpt-4o-mini", "label": "GPT-4o mini", "tier": "安価", "inputPer1M": 0.15, "outputPer1M": 0.60, "recommendedFor": "OpenAI系で安く使う", "verify": true },
+    { "provider": "openai", "id": "gpt-4.1-mini", "label": "GPT-4.1 mini", "tier": "安価・新", "inputPer1M": 0.40, "outputPer1M": 1.60, "recommendedFor": "4o miniより新しめ", "verify": true },
+    { "provider": "openai", "id": "gpt-4o", "label": "GPT-4o", "tier": "標準", "inputPer1M": 2.50, "outputPer1M": 10.00, "recommendedFor": "OpenAI系で精度重視", "verify": true },
+    { "provider": "openai", "id": "gpt-4.1", "label": "GPT-4.1", "tier": "高精度", "inputPer1M": 2.00, "outputPer1M": 8.00, "recommendedFor": "最新の高精度", "verify": true },
+    { "provider": "claude", "id": "claude-haiku-4-5-20251001", "label": "Claude Haiku 4.5", "tier": "安価・高速", "inputPer1M": 1.00, "outputPer1M": 5.00, "recommendedFor": "Claude系で安く・速く", "verify": true },
+    { "provider": "claude", "id": "claude-sonnet-4-6", "label": "Claude Sonnet 4.6", "tier": "標準・高精度", "inputPer1M": 3.00, "outputPer1M": 15.00, "recommendedFor": "文章品質重視の返信", "verify": true },
+    { "provider": "claude", "id": "claude-opus-4-8", "label": "Claude Opus 4.8", "tier": "最高精度", "inputPer1M": 15.00, "outputPer1M": 75.00, "recommendedFor": "最高品質。コストは高い", "verify": true }
+  ],
+
+  "defaultScenario": {
+    "note": "シミュレーターの初期値。ユーザーが調整する前提。",
+    "workdaysPerMonth": 20,
+    "customerEmailsPerDay": 30,
+    "comment_customerEmailsPerDay": "『登録した取引先から1日に届くメール数』。受信総数ではない点をUIで明示すること。",
+    "reviewRatio": 0.7,
+    "comment_reviewRatio": "登録メールのうち要確認になる割合（残りはスルー/自動返信）",
+    "replyRatio": 0.35,
+    "comment_replyRatio": "登録メールのうち返信下書きを生成する割合",
+    "extractRatio": 0.6,
+    "comment_extractRatio": "登録メールのうち台帳抽出を行う割合（シート連携ありの場合）",
+    "sheetsEnabled": true,
+    "scenarioBucket": "typical"
+  },
+
+  "costFormula": {
+    "description": "月間トークン = 営業日×1日の登録メール数 を母数 N とし、各呼び出しの発生率×(入力/出力トークン) を合算。料金 = (Σ入力/1e6×inputPer1M + Σ出力/1e6×outputPer1M) × usdJpy。",
+    "steps": [
+      "N = workdaysPerMonth * customerEmailsPerDay",
+      "classify: 件数 = N（必ず1回）",
+      "reply:    件数 = N * replyRatio",
+      "extract:  件数 = sheetsEnabled ? N * extractRatio : 0",
+      "各件数 × その呼び出しの inputTokens[bucket] / outputTokens[bucket] を合計",
+      "USDコスト = totalInputTokens/1e6*inputPer1M + totalOutputTokens/1e6*outputPer1M",
+      "JPYコスト = USDコスト * usdJpyDefault"
+    ]
+  },
+
+  "localAI": {
+    "note": "Ollama経由のローカルLLM。APIキー不要・通信なし・無料（電気代のみ）。MailBridgeが選べる既定モデルは下記3つ。手入力で他モデルも指定可。",
+    "tasksDifficulty": {
+      "classify": "易：JSON分類。7B級で十分実用",
+      "extract": "中：本文から正確に値を抜く。7〜9Bで実用、誤りは要確認画面で人が直す前提",
+      "reply": "難：自然な日本語ビジネス文。7〜9Bで簡単な返信は可、品質重視は14B級以上が望ましい"
+    },
+    "models": [
+      { "id": "qwen2.5:7b", "label": "Qwen2.5 7B", "params": "7B", "diskQ4": "約4.7GB", "minRamCpu": "8GB(空き)〜", "minVramGpu": "6GB〜", "japanese": "強い（日本語が得意・MailBridge推奨のローカル既定）", "good": "分類・抽出・簡単な返信" },
+      { "id": "llama3.1:8b", "label": "Llama 3.1 8B", "params": "8B", "diskQ4": "約4.9GB", "minRamCpu": "10GB(空き)〜", "minVramGpu": "6GB〜", "japanese": "中（英語寄り。日本語はQwenに一歩譲る）", "good": "分類・抽出" },
+      { "id": "gemma2:9b", "label": "Gemma 2 9B", "params": "9B", "diskQ4": "約5.4GB", "minRamCpu": "12GB(空き)〜", "minVramGpu": "8GB〜", "japanese": "中〜強", "good": "分類・抽出・返信" }
+    ],
+    "speedNote": "tok/s=1秒あたり生成トークン。分類は出力約220トークンなので、20tok/sなら生成約11秒＋入力処理(プロンプト評価)。CPUのみは入力処理が遅く、長い本文だと数十秒〜分かかることがある。GPUは入力処理も速い。",
+    "contextNote": "MailBridgeはメール本文を最大4000字＋参照情報を送るため、プロンプトは最大約8kトークン。8k以上のコンテキストとKVキャッシュの余裕(+1〜2GB)が必要。VRAM 6GBは8kコンテキストだとギリギリ、8GB以上が安心。"
+  },
+
+  "hardwareTiersNote": "gpu/vram(GB)/ram(GB) はシミュレーターが選択肢を自動生成するための構造化フィールド。verify:true の段は元の8段（appUsage実装＋一般知識ベース）からの拡張で、実機ベンチではなく一般的なハードウェア性能からの目安。tokPerSec はQ4_K_M・8k前後コンテキスト想定の概算。",
+  "hardwareTiers": [
+    { "key": "cpu_8gb",   "label": "GPUなし / メモリ8GB",   "gpu": "none", "vram": null, "ram": 8,   "canRun": ["qwen2.5:7b(Q4・ギリギリ)"], "tokPerSec": "1〜4", "verdict": "不安定", "useFor": "分類のみ・少量。返信生成は実用的でない。基本はクラウド推奨", "rating": 1 },
+    { "key": "cpu_16gb",  "label": "GPUなし / メモリ16GB",  "gpu": "none", "vram": null, "ram": 16,  "canRun": ["qwen2.5:7b", "llama3.1:8b"], "tokPerSec": "3〜7", "verdict": "実用下限", "useFor": "分類・抽出は可（1通あたり数十秒）。返信は待てるなら可", "rating": 2 },
+    { "key": "cpu_32gb",  "label": "GPUなし / メモリ32GB",  "gpu": "none", "vram": null, "ram": 32,  "canRun": ["qwen2.5:7b", "llama3.1:8b", "gemma2:9b"], "tokPerSec": "4〜8", "verdict": "実用（遅め）", "useFor": "全タスク可。速度は控えめ。夜間バッチ向き", "rating": 2 },
+    { "key": "cpu_64gb",  "label": "GPUなし / メモリ64GB",  "gpu": "none", "vram": null, "ram": 64,  "canRun": ["7〜9B全部", "14B級(Q4)も可(遅い)"], "tokPerSec": "4〜8", "verdict": "実用（遅め・大型可）", "useFor": "全タスク可。32GBより大きいモデルを載せられるが速度はCPU律速で同等。夜間バッチ向き", "rating": 2, "verify": true },
+    { "key": "cpu_128gb", "label": "GPUなし / メモリ128GB", "gpu": "none", "vram": null, "ram": 128, "canRun": ["7〜14B級", "32〜70B級(Q4)も載る(非常に遅い)"], "tokPerSec": "2〜6", "verdict": "大型モデル可（低速）", "useFor": "70B級まで“載る”がCPUのみのため1通に数十秒〜分。実用は分類中心。返信品質重視ならGPU推奨", "rating": 2, "verify": true },
+    { "key": "apple_m_8gb",  "label": "Apple Silicon (M1〜M4) / 統合8GB",  "gpu": "apple", "vram": null, "ram": 8,  "canRun": ["qwen2.5:7b(ギリギリ)"], "tokPerSec": "10〜25", "verdict": "実用(7B)", "useFor": "7Bで分類・抽出・簡単な返信は可。9Bは窮屈", "rating": 3, "verify": true },
+    { "key": "apple_m_16gb", "label": "Apple Silicon (M1〜M4) / 統合16GB", "gpu": "apple", "vram": null, "ram": 16, "canRun": ["qwen2.5:7b", "llama3.1:8b", "gemma2:9b"], "tokPerSec": "15〜40", "verdict": "快適", "useFor": "全タスク快適。Macなら有力な無料運用", "rating": 4 },
+    { "key": "apple_m_24gb", "label": "Apple Silicon (M1〜M4) / 統合24GB", "gpu": "apple", "vram": null, "ram": 24, "canRun": ["7〜9B全部", "14B級も可"], "tokPerSec": "20〜50", "verdict": "快適", "useFor": "全タスク快適＋14B級で返信品質も上げられる", "rating": 5, "verify": true },
+    { "key": "apple_m_32gb", "label": "Apple Silicon (M1〜M4) / 統合32GB", "gpu": "apple", "vram": null, "ram": 32, "canRun": ["14B級", "一部32B級(Q4)"], "tokPerSec": "25〜55", "verdict": "余裕", "useFor": "14B級で高品質な返信も。Macで本格的なローカル運用", "rating": 5, "verify": true },
+    { "key": "apple_m_64gb", "label": "Apple Silicon (M1〜M4) / 統合64GB", "gpu": "apple", "vram": null, "ram": 64, "canRun": ["32B級", "70B級(Q4)も可"], "tokPerSec": "25〜60", "verdict": "ハイエンド", "useFor": "70B級までローカル無料で。Macのハイエンド構成", "rating": 5, "verify": true },
+    { "key": "nv_6gb",  "label": "NVIDIA GPU VRAM 6GB (例 RTX3050/4050 Laptop)", "gpu": "nvidia", "vram": 6,  "ram": null, "canRun": ["qwen2.5:7b(Q4)", "llama3.1:8b(Q4)"], "tokPerSec": "25〜50", "verdict": "快適(7B)", "useFor": "分類・抽出・簡単な返信は快適。9Bは窮屈", "rating": 3 },
+    { "key": "nv_8gb",  "label": "NVIDIA GPU VRAM 8GB (例 RTX3060/4060)", "gpu": "nvidia", "vram": 8,  "ram": null, "canRun": ["qwen2.5:7b", "llama3.1:8b", "gemma2:9b"], "tokPerSec": "45〜70", "verdict": "快適", "useFor": "全タスク快適。常用に十分", "rating": 4 },
+    { "key": "nv_12gb", "label": "NVIDIA GPU VRAM 12GB (例 RTX3060 12G/4070)", "gpu": "nvidia", "vram": 12, "ram": null, "canRun": ["7〜9B全部", "14B級(Q4)も可"], "tokPerSec": "55〜90", "verdict": "余裕", "useFor": "全タスク快適＋より高品質な14B級で返信精度を上げられる", "rating": 5 },
+    { "key": "nv_16gb", "label": "NVIDIA GPU VRAM 16GB (例 RTX4070Ti Super/4080/5070Ti)", "gpu": "nvidia", "vram": 16, "ram": null, "canRun": ["7〜9B全部", "14〜32B級(Q4)"], "tokPerSec": "60〜110", "verdict": "ハイエンド", "useFor": "32B級まで快適。返信も高品質にローカルで", "rating": 5, "verify": true },
+    { "key": "nv_24gb", "label": "NVIDIA GPU VRAM 24GB (例 RTX3090/4090/5080)", "gpu": "nvidia", "vram": 24, "ram": null, "canRun": ["14〜32B級", "70B級(Q4)も射程"], "tokPerSec": "70〜130", "verdict": "ハイエンド", "useFor": "32B級快適、70B級(量子化)も。クラウド級品質をローカル無料で", "rating": 5, "verify": true },
+    { "key": "nv_32gb", "label": "NVIDIA GPU VRAM 32GB (例 RTX5090)", "gpu": "nvidia", "vram": 32, "ram": null, "canRun": ["32B級を快適", "70B級(Q4)も実用圏"], "tokPerSec": "90〜160", "verdict": "最上位", "useFor": "現行最上位。32Bを高速、70B級(量子化)も実用。返信も最高品質をローカルで", "rating": 5, "verify": true }
+  ],
+
+  "salesPoints": [
+    "AIを使うのは『登録した取引先のメール』だけ。迷惑メールや広告には1円もかからない。",
+    "返信文は『必要な時だけ』生成。全件に作らないので無駄なAPIコストが出ない。",
+    "既定のGemini 2.5 Flashなら、月600通規模でも数百円〜程度の見込み（要シミュレーション）。",
+    "BYOK（自分のAPIキー）なので中間マージンなし。使った分だけ各AI社へ直接支払い。",
+    "ローカルAI(Ollama)を選べば通信なし・追加料金ゼロ。社外にメールを出したくない会社向け。"
+  ]
+}

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APIキー設定ガイド（管理者向け）｜MailBridge</title>
+<meta name="description" content="MailBridgeのAPIキー設定ガイド。APIキーは各メンバーが初期設定で入力します（自分の端末だけに保存・サーバーには送りません）。管理者がやること・担当者がやることを画面つきで解説。">
+<meta property="og:title" content="APIキー設定ガイド（管理者・担当者向け）｜MailBridge">
+<meta property="og:description" content="APIキーは各メンバーが初期設定で入力。管理者と担当者の役割を、画面つきで誰でもできるように解説。">
+<meta property="og:type" content="article">
+<meta property="og:image" content="assets/mailbridge-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="assets/mailbridge-cover.jpg">
+<link rel="icon" type="image/jpeg" href="assets/mailbridge-logo.jpg">
+<link rel="apple-touch-icon" href="assets/mailbridge-logo.jpg">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@600;700;900&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:    { DEFAULT:'#0f1c2e', 900:'#0b1626', 800:'#142336', 700:'#22334a' },
+          navy:   { DEFAULT:'#1c3354', 600:'#274463', 500:'#3a5878' },
+          slate2: '#5b6776',
+          line:   '#e4e9f0',
+          mist:   '#f5f7fa',
+          accent: { DEFAULT:'#2f86c5', 600:'#236aa3', 500:'#56a5da', soft:'#e6f1fa' },
+        },
+        fontFamily: {
+          sans:  ['"Noto Sans JP"','sans-serif'],
+          serif: ['"Noto Serif JP"','serif'],
+        },
+        boxShadow: {
+          card: '0 8px 28px rgba(15,28,46,.07)',
+          lg2:  '0 22px 60px rgba(15,28,46,.14)',
+        },
+      }
+    }
+  }
+</script>
+<style>
+  html{scroll-behavior:smooth}
+  body{font-family:"Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.font-serif{font-family:"Noto Serif JP",serif}
+  .step-num{font-family:"Noto Serif JP",serif}
+  kbd{font-family:inherit;background:#0f1c2e;color:#fff;border-radius:6px;padding:2px 8px;font-size:.85em;font-weight:700}
+</style>
+</head>
+<body class="text-ink bg-white">
+
+<!-- ===== Nav ===== -->
+<header class="sticky top-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-b border-line">
+  <div class="max-w-4xl mx-auto px-5 h-16 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2.5 font-serif font-black text-lg text-navy">
+      <span class="w-8 h-8 rounded-lg bg-accent grid place-items-center text-white text-sm font-sans font-bold">M</span>
+      MailBridge
+    </a>
+    <a href="index.html" class="text-sm text-slate2 hover:text-accent transition inline-flex items-center gap-1.5">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m0 0l7 7m-7-7l7-7"/></svg>
+      トップに戻る
+    </a>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="relative overflow-hidden bg-gradient-to-br from-ink-800 via-ink to-ink-900 text-white">
+  <div class="absolute inset-0" style="background:radial-gradient(60% 70% at 80% 0%,rgba(47,134,197,.26),transparent 60%)"></div>
+  <div class="relative max-w-4xl mx-auto px-5 pt-16 pb-14 md:pt-20 md:pb-16">
+    <span class="inline-flex items-center gap-2 text-accent-500 text-xs font-bold tracking-widest mb-5">
+      <span class="w-1.5 h-1.5 rounded-full bg-accent-500"></span>SETUP GUIDE ／ 管理者・担当者向け
+    </span>
+    <h1 class="text-3xl md:text-4xl font-black leading-[1.4]">
+      APIキー設定ガイド<br><span class="text-accent-500">各自で入力。約5分で完了。</span>
+    </h1>
+    <p class="mt-6 text-base md:text-lg text-white/80 leading-relaxed max-w-2xl">
+      MailBridgeがAIを使うための「APIキー」は、<strong class="text-white">各メンバーが自分の端末で入力</strong>します（初期設定の一部）。キーは<strong class="text-white">その端末内だけに保存し、サーバーには送りません</strong>。使うAI（プロバイダ・モデル）も、各メンバーが自分の個別設定で選びます。
+    </p>
+    <div class="mt-7 flex flex-wrap gap-3 text-sm">
+      <span class="inline-flex items-center gap-2 rounded-full bg-white/[0.07] border border-white/15 px-4 py-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#56a5da" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>1人あたり約5分</span>
+      <span class="inline-flex items-center gap-2 rounded-full bg-white/[0.07] border border-white/15 px-4 py-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#56a5da" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>AI料金は使った分だけ（中間マージンなし）</span>
+      <span class="inline-flex items-center gap-2 rounded-full bg-white/[0.07] border border-white/15 px-4 py-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#56a5da" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>専門知識は不要</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== なぜ必要？（やさしい説明） ===== -->
+<section class="py-14 md:py-16 bg-white border-b border-line">
+  <div class="max-w-3xl mx-auto px-5">
+    <span class="text-accent font-bold text-xs tracking-widest">WHY</span>
+    <h2 class="text-2xl md:text-3xl font-black text-navy mt-3 mb-5">そもそも「APIキー」って何ですか？</h2>
+    <div class="mb-6 rounded-2xl border border-accent/30 bg-accent-soft p-5 flex items-start gap-3">
+      <svg class="shrink-0 mt-0.5" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2"><path d="M12 2a3 3 0 013 3 3 3 0 01-1 2.2V9h2a3 3 0 010 6h-2v1.8A3 3 0 0112 22a3 3 0 01-3-5.2V15H7a3 3 0 010-6h2V7.2A3 3 0 0112 2z"/></svg>
+      <p class="text-sm text-navy leading-relaxed"><strong>MailBridgeはAIを内蔵していません。</strong>外部のAI（Gemini・OpenAI・Claude）か、<strong>PCにインストールするローカルAI</strong>を使います。だから、そのAIを呼び出すための「合言葉」＝APIキーが必要になります（ローカルAIの場合はキー不要）。AI利用料を上乗せしない（中間マージンなし）ための仕組みでもあります。</p>
+    </div>
+    <p class="text-slate2 leading-relaxed mb-4">
+      MailBridgeは、メールの仕分けや返信下書きに <strong class="text-navy">AI（人工知能）</strong> を使います。そのAIを呼び出すための「あなた専用の合言葉」が <strong class="text-navy">APIキー</strong> です。<code class="bg-mist border border-line rounded px-1.5 py-0.5 text-[13px]">AIza...</code> のような英数字の文字列です。
+    </p>
+    <p class="text-slate2 leading-relaxed">
+      むずかしく聞こえますが、やることは <strong class="text-navy">「キーを1回コピーして、アプリに貼り付けて保存」だけ</strong>。下の手順どおりに進めれば必ずできます。キーは<strong class="text-navy">各メンバーが自分の端末で入力</strong>し、その端末内だけに保存されます（サーバーには送りません・他メンバーには共有されません）。
+    </p>
+  </div>
+</section>
+
+<!-- ===== 役割分担 ===== -->
+<section class="py-14 md:py-16 bg-mist border-b border-line">
+  <div class="max-w-4xl mx-auto px-5">
+    <span class="text-accent font-bold text-xs tracking-widest">WHO DOES WHAT</span>
+    <h2 class="text-2xl md:text-3xl font-black text-navy mt-3 mb-3">だれが、何をする？</h2>
+    <p class="text-slate2 leading-relaxed mb-8">初期設定は、管理者と担当者で分担します。<strong class="text-navy">APIキーの入力は、各メンバーの初期設定に含まれます。</strong></p>
+    <div class="grid md:grid-cols-2 gap-5">
+      <!-- 管理者 -->
+      <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-7">
+        <div class="flex items-center gap-2 mb-4"><span class="w-9 h-9 rounded-xl bg-accent-soft grid place-items-center text-lg">👤</span><h3 class="font-bold text-navy text-lg">管理者がやること</h3></div>
+        <ol class="space-y-3 text-sm text-ink">
+          <li class="flex gap-2.5"><span class="step-num shrink-0 w-6 h-6 rounded-full bg-navy text-white grid place-items-center font-bold text-xs">1</span>会社を作成（最初に登録した方が管理者）</li>
+          <li class="flex gap-2.5"><span class="step-num shrink-0 w-6 h-6 rounded-full bg-navy text-white grid place-items-center font-bold text-xs">2</span>取引先を顧客マスタに登録・処理スケジュールなど会社共通の設定</li>
+          <li class="flex gap-2.5"><span class="step-num shrink-0 w-6 h-6 rounded-full bg-navy text-white grid place-items-center font-bold text-xs">3</span>メンバーを招待コードで追加（プロプラン以上）</li>
+          <li class="flex gap-2.5"><span class="step-num shrink-0 w-6 h-6 rounded-full bg-accent text-white grid place-items-center font-bold text-xs">4</span><strong class="text-navy">自分も使うので、個別設定でAI（プロバイダ・モデル・キー）を設定</strong><span class="text-slate2">（下の手順）</span></li>
+        </ol>
+        <p class="text-xs text-slate2 mt-4 leading-relaxed">※AIの設定は管理者も担当者も各自の「個別設定」で行います。会社で1つの有料キーを使い回す場合は、管理者がキーを取得して各メンバーに伝え、各自が入力します。</p>
+      </div>
+      <!-- 担当者 -->
+      <div class="rounded-2xl bg-white border-2 border-accent shadow-lg2 p-6 md:p-7">
+        <div class="flex items-center gap-2 mb-4"><span class="w-9 h-9 rounded-xl bg-accent-soft grid place-items-center text-lg">🧑‍💼</span><h3 class="font-bold text-navy text-lg">担当者（メンバー）がやること</h3></div>
+        <ol class="space-y-3 text-sm text-ink">
+          <li class="flex gap-2.5"><span class="step-num shrink-0 w-6 h-6 rounded-full bg-navy text-white grid place-items-center font-bold text-xs">1</span>アプリを<a href="download.html" class="text-accent underline">ダウンロード</a>してインストール</li>
+          <li class="flex gap-2.5"><span class="step-num shrink-0 w-6 h-6 rounded-full bg-navy text-white grid place-items-center font-bold text-xs">2</span>管理者から受け取った招待コードで会社に参加</li>
+          <li class="flex gap-2.5"><span class="step-num shrink-0 w-6 h-6 rounded-full bg-navy text-white grid place-items-center font-bold text-xs">3</span>個別設定で、自分のメール（Outlook／IMAP）を接続</li>
+          <li class="flex gap-2.5"><span class="step-num shrink-0 w-6 h-6 rounded-full bg-accent text-white grid place-items-center font-bold text-xs">4</span><strong class="text-navy">個別設定 →「AI設定（モデル・APIキー）」で、プロバイダ・モデルを選び、自分のAPIキーを入力</strong><span class="text-slate2">（下の手順／初期設定に含まれます）</span></li>
+        </ol>
+        <p class="text-xs text-slate2 mt-4 leading-relaxed">※プロバイダ・モデル・キーはすべて自分の「個別設定」で設定します。キーはこの端末内だけに保存され、サーバーや他メンバーには共有されません。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 手順（Gemini） ===== -->
+<section class="py-14 md:py-16 bg-mist">
+  <div class="max-w-3xl mx-auto px-5">
+    <span class="text-accent font-bold text-xs tracking-widest">STEP BY STEP</span>
+    <h2 class="text-2xl md:text-3xl font-black text-navy mt-3 mb-3">APIキーの取得と入力（各自の手順・Gemini）</h2>
+    <p class="text-slate2 leading-relaxed mb-9">
+      キーを取得する人（各メンバー、または会社で1つのキーを用意する管理者）の手順です。MailBridgeの推奨は <strong class="text-navy">Google の Gemini</strong>。いちばん手軽で、Flashモデルなら料金も安く抑えられます。Googleアカウント（GmailのアカウントでOK）をご用意ください。料金については<a href="#cost" class="text-accent hover:underline">このあとの「料金について」</a>で正直にお伝えします。
+    </p>
+
+    <div class="space-y-5">
+      <!-- STEP 1 -->
+      <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-7 flex gap-5">
+        <div class="step-num shrink-0 w-11 h-11 rounded-full bg-accent text-white grid place-items-center font-black text-lg">1</div>
+        <div>
+          <h3 class="font-bold text-navy text-lg mb-2">Google AI Studio を開く</h3>
+          <p class="text-slate2 text-sm leading-relaxed">下のボタンから「Google AI Studio」のAPIキー画面を開きます。Googleアカウントへのログインを求められたら、会社で使うGoogleアカウントでログインしてください。</p>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="mt-4 inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-white font-bold px-5 py-3 rounded-full transition text-sm">
+            Google AI Studio を開く
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+          </a>
+          <p class="text-xs text-slate2 mt-3">URL：<code class="bg-mist border border-line rounded px-1.5 py-0.5">aistudio.google.com/app/apikey</code></p>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-7 flex gap-5">
+        <div class="step-num shrink-0 w-11 h-11 rounded-full bg-accent text-white grid place-items-center font-black text-lg">2</div>
+        <div>
+          <h3 class="font-bold text-navy text-lg mb-2">「APIキーを作成」を押す</h3>
+          <p class="text-slate2 text-sm leading-relaxed">画面の <kbd>APIキーを作成</kbd>（英語表示なら <kbd>Create API key</kbd>）ボタンを押します。プロジェクトの選択を聞かれたら、表示されているものをそのまま選んで進めてOKです。利用規約の同意を求められたら同意してください。</p>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-7 flex gap-5">
+        <div class="step-num shrink-0 w-11 h-11 rounded-full bg-accent text-white grid place-items-center font-black text-lg">3</div>
+        <div>
+          <h3 class="font-bold text-navy text-lg mb-2">キーをコピーする</h3>
+          <p class="text-slate2 text-sm leading-relaxed"><code class="bg-mist border border-line rounded px-1.5 py-0.5 text-[13px]">AIza</code> で始まる文字列が表示されます。これがAPIキーです。横の <kbd>コピー</kbd> アイコンを押してコピーしてください。</p>
+          <div class="mt-4 flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <svg class="shrink-0 mt-0.5" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9l-8 14A2 2 0 004 21h16a2 2 0 001.7-3l-8-14a2 2 0 00-3.4 0z"/></svg>
+            <span>このキーは<strong>パスワードと同じ</strong>です。メールやチャットに貼って他人に共有しないでください。MailBridgeに貼り付ければOKです。</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-7 flex gap-5">
+        <div class="step-num shrink-0 w-11 h-11 rounded-full bg-accent text-white grid place-items-center font-black text-lg">4</div>
+        <div>
+          <h3 class="font-bold text-navy text-lg mb-2">MailBridgeの個別設定を開く</h3>
+          <p class="text-slate2 text-sm leading-relaxed">MailBridgeアプリを起動し、左メニューの <kbd>個別設定</kbd> を開きます。<strong class="text-navy">「AI設定（モデル・APIキー）」</strong> のカードを使います。</p>
+          <p class="text-xs text-slate2 mt-3">※「個別設定」はあなた専用（この端末のみ）。プロバイダ・モデル・APIキーは、すべてここで設定します。</p>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-7 flex gap-5">
+        <div class="step-num shrink-0 w-11 h-11 rounded-full bg-accent text-white grid place-items-center font-black text-lg">5</div>
+        <div>
+          <h3 class="font-bold text-navy text-lg mb-2">プロバイダ・モデルを選び、キーを貼り付ける</h3>
+          <ul class="text-slate2 text-sm leading-relaxed space-y-2 list-none">
+            <li class="flex gap-2"><span class="text-accent font-bold">・</span>プロバイダで <strong class="text-navy">Gemini</strong> を選択</li>
+            <li class="flex gap-2"><span class="text-accent font-bold">・</span>使用モデルは <code class="bg-mist border border-line rounded px-1.5 py-0.5 text-[13px]">gemini-2.5-flash</code>（推奨・初期選択のままでOK）</li>
+            <li class="flex gap-2"><span class="text-accent font-bold">・</span><strong class="text-navy">APIキー</strong>の欄に、さきほどコピーしたキーを貼り付け（<kbd>Ctrl + V</kbd>）</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="rounded-2xl bg-white border-2 border-accent shadow-lg2 p-6 md:p-7 flex gap-5">
+        <div class="step-num shrink-0 w-11 h-11 rounded-full bg-accent text-white grid place-items-center font-black text-lg">6</div>
+        <div>
+          <h3 class="font-bold text-navy text-lg mb-2">「保存」を押して完了！</h3>
+          <p class="text-slate2 text-sm leading-relaxed">画面右上の <kbd>保存</kbd> を押せば完了です。キーはお使いの端末内に<strong class="text-navy">暗号化して保存</strong>され、サーバーには送られません。</p>
+          <div class="mt-4 flex items-start gap-2.5 rounded-xl border border-accent/30 bg-accent-soft px-4 py-3 text-sm text-navy">
+            <svg class="shrink-0 mt-0.5" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            <span><strong>これであなたのアカウントでAIが使えます。</strong>ほかのメンバーも、同じ手順で各自のキーを入力してください（あとはダッシュボードで「メールを処理」を押すだけ）。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 料金について（正直に） ===== -->
+<section id="cost" class="py-14 md:py-16 bg-white border-t border-line">
+  <div class="max-w-3xl mx-auto px-5">
+    <span class="text-accent font-bold text-xs tracking-widest">PRICING</span>
+    <h2 class="text-2xl md:text-3xl font-black text-navy mt-3 mb-5">料金について（正直にお伝えします）</h2>
+    <p class="text-slate2 leading-relaxed mb-6">
+      MailBridgeでAIを使うには、<strong class="text-navy">Gemini APIの利用料（従量課金）が別途必要</strong>です。「無料でほぼタダ」ではありません。ここはごまかさずお伝えします。
+    </p>
+
+    <div class="grid sm:grid-cols-2 gap-4 mb-6">
+      <div class="rounded-2xl border border-line bg-mist p-6">
+        <div class="text-xs font-bold text-accent tracking-widest mb-2">目安の料金</div>
+        <div class="font-serif font-black text-3xl text-navy">月 数百円〜数千円</div>
+        <p class="text-slate2 text-sm mt-3 leading-relaxed">メールの処理量によって変わります。<strong class="text-navy">Flashモデル（gemini-2.5-flash）</strong>を使えば、料金をぐっと安く抑えられます。</p>
+      </div>
+      <div class="rounded-2xl border border-accent/30 bg-accent-soft p-6">
+        <div class="text-xs font-bold text-accent tracking-widest mb-2">中間マージンなし</div>
+        <div class="font-serif font-black text-xl text-navy leading-snug">Googleへ直接支払い</div>
+        <p class="text-slate2 text-sm mt-3 leading-relaxed">AI利用料は<strong class="text-navy">Googleへの直接支払い</strong>です。MailBridgeが中間マージンを上乗せすることはありません。<strong class="text-navy">使った分だけ払う、透明な料金体系</strong>です。</p>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-2.5 rounded-xl border border-line bg-white px-4 py-3 text-sm text-slate2">
+      <svg class="shrink-0 mt-0.5" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5b6776" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>このAI利用料は、MailBridgeの月額プラン料金（無料〜）とは<strong class="text-navy">別</strong>です。継続的に使う場合は、Google側で支払い方法（請求先）の登録が必要になることがあります。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== メンバーの参加 ===== -->
+<section class="py-14 md:py-16 bg-mist">
+  <div class="max-w-3xl mx-auto px-5">
+    <span class="text-accent font-bold text-xs tracking-widest">FOR MEMBERS</span>
+    <h2 class="text-2xl md:text-3xl font-black text-navy mt-3 mb-5">メンバー（管理者以外）がやること</h2>
+    <p class="text-slate2 leading-relaxed mb-6">メンバーは <strong class="text-navy">APIキーを設定する必要はありません</strong>。やることは次の3つだけです。</p>
+    <ol class="space-y-3">
+      <li class="flex gap-3 items-start rounded-xl bg-mist border border-line p-5">
+        <span class="step-num shrink-0 w-8 h-8 rounded-full bg-navy text-white grid place-items-center font-bold text-sm">1</span>
+        <div class="text-sm"><strong class="text-navy">アプリをインストール</strong><span class="text-slate2"> — <a href="download.html" class="text-accent hover:underline">ダウンロードページ</a>から。</span></div>
+      </li>
+      <li class="flex gap-3 items-start rounded-xl bg-mist border border-line p-5">
+        <span class="step-num shrink-0 w-8 h-8 rounded-full bg-navy text-white grid place-items-center font-bold text-sm">2</span>
+        <div class="text-sm"><strong class="text-navy">招待コードで参加</strong><span class="text-slate2"> — 管理者から受け取った招待コードを、サインアップ後の「招待コードで参加」に入力します。</span></div>
+      </li>
+      <li class="flex gap-3 items-start rounded-xl bg-mist border border-line p-5">
+        <span class="step-num shrink-0 w-8 h-8 rounded-full bg-navy text-white grid place-items-center font-bold text-sm">3</span>
+        <div class="text-sm"><strong class="text-navy">自分のメールを接続</strong><span class="text-slate2"> — 「個別設定」で自分のメール（Outlook / IMAP）をつなげば、すぐ使えます。</span></div>
+      </li>
+    </ol>
+    <p class="text-xs text-slate2 mt-5">※招待コードは管理者が「社内設定 → チャット・権限」から発行できます（プロプラン以上・有効期限14日）。</p>
+  </div>
+</section>
+
+<!-- ===== 困ったとき ===== -->
+<section class="py-14 md:py-16 bg-white">
+  <div class="max-w-3xl mx-auto px-5">
+    <span class="text-accent font-bold text-xs tracking-widest">TROUBLESHOOTING</span>
+    <h2 class="text-2xl md:text-3xl font-black text-navy mt-3 mb-7">困ったときは</h2>
+    <div class="space-y-4">
+      <div class="rounded-xl bg-white border border-line p-6">
+        <h3 class="font-bold text-navy mb-2">Q. キーを貼り付けても「未設定」と出ます</h3>
+        <p class="text-slate2 text-sm leading-relaxed">前後に空白が入っていないか確認し、<strong class="text-navy">保存</strong>ボタンを押したか確認してください。キーは <code class="bg-mist border border-line rounded px-1.5 py-0.5 text-[13px]">AIza</code> で始まります。うまくいかないときは一度キーを消して、もう一度コピーし直して貼り付けてください。</p>
+      </div>
+      <div class="rounded-xl bg-white border border-line p-6">
+        <h3 class="font-bold text-navy mb-2">Q. 料金はかかりますか？</h3>
+        <p class="text-slate2 text-sm leading-relaxed">Gemini APIの利用料（従量課金）が別途かかります。目安は<strong class="text-navy">月 数百円〜数千円</strong>で、Flashモデルなら安く抑えられます。この料金は<strong class="text-navy">Googleへの直接支払い</strong>で、MailBridgeは中間マージンを取りません（使った分だけの透明な料金体系）。なお、これはMailBridgeの月額プラン料金とは別です。詳しくは<a href="#cost" class="text-accent hover:underline">「料金について」</a>をご覧ください。</p>
+      </div>
+      <div class="rounded-xl bg-white border border-line p-6">
+        <h3 class="font-bold text-navy mb-2">Q. OpenAI（ChatGPT）や Claude を使いたい</h3>
+        <p class="text-slate2 text-sm leading-relaxed">AI設定でプロバイダを切り替えられます。<strong class="text-navy">OpenAI</strong> は <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" class="text-accent hover:underline">platform.openai.com</a>（キーは <code class="bg-mist border border-line rounded px-1.5 py-0.5 text-[13px]">sk-</code> で始まる）、<strong class="text-navy">Claude</strong> は <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" class="text-accent hover:underline">console.anthropic.com</a> でキーを発行し、同じ要領で貼り付けて保存します。社内サーバーで動かす <strong class="text-navy">Ollama</strong> にも対応しています。</p>
+      </div>
+      <div class="rounded-xl bg-white border border-line p-6">
+        <h3 class="font-bold text-navy mb-2">Q. それでも分からない</h3>
+        <p class="text-slate2 text-sm leading-relaxed">遠慮なくお問い合わせください。設定のお手伝いをします。<a href="mailto:yh.006611@gmail.com" class="text-accent hover:underline">yh.006611@gmail.com</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="py-14 md:py-16 bg-gradient-to-br from-navy to-ink text-white">
+  <div class="max-w-3xl mx-auto px-5 text-center">
+    <h2 class="text-2xl md:text-3xl font-black leading-relaxed">準備ができたら、さっそく始めましょう。</h2>
+    <p class="text-white/75 mt-4">アプリのインストールがまだの方はこちらから。</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3.5">
+      <a href="download.html" class="bg-accent hover:bg-accent-600 text-white font-bold px-8 py-4 rounded-full shadow-lg2 transition hover:-translate-y-0.5">アプリをダウンロード</a>
+      <a href="index.html" class="border border-white/40 hover:bg-white hover:text-ink text-white font-bold px-8 py-4 rounded-full transition">トップページへ</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="bg-ink-900 text-white/70 py-8">
+  <div class="max-w-4xl mx-auto px-5 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/45">
+    <p>運営者：本間　裕太</p>
+    <p>© 2026 MailBridge. All rights reserved.</p>
+  </div>
+</footer>
+
+</body>
+</html>

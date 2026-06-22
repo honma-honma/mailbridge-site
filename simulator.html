@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>導入前シミュレーター｜MailBridge</title>
+<meta name="description" content="MailBridge導入前に、API料金の目安・お使いのPCでローカルAIが動くか・おすすめプランをその場で試算できるシミュレーターです。">
+<meta property="og:title" content="導入前シミュレーター｜MailBridge">
+<meta property="og:description" content="API料金の目安・ローカルAI対応・おすすめプランをその場で試算。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/mailbridge-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="assets/mailbridge-cover.jpg">
+<link rel="icon" type="image/jpeg" href="assets/mailbridge-logo.jpg">
+<link rel="apple-touch-icon" href="assets/mailbridge-logo.jpg">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@600;700;900&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:    { DEFAULT:'#0f1c2e', 900:'#0b1626', 800:'#142336', 700:'#22334a' },
+          navy:   { DEFAULT:'#1c3354', 600:'#274463', 500:'#3a5878' },
+          slate2: '#5b6776',
+          line:   '#e4e9f0',
+          mist:   '#f5f7fa',
+          accent: { DEFAULT:'#2f86c5', 600:'#236aa3', 500:'#56a5da', soft:'#e6f1fa' },
+        },
+        fontFamily: {
+          sans:  ['"Noto Sans JP"','sans-serif'],
+          serif: ['"Noto Serif JP"','serif'],
+        },
+        boxShadow: {
+          card: '0 8px 28px rgba(15,28,46,.07)',
+          lg2:  '0 22px 60px rgba(15,28,46,.14)',
+        },
+      }
+    }
+  }
+</script>
+<style>
+  html{scroll-behavior:smooth}
+  body{font-family:"Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.font-serif{font-family:"Noto Serif JP",serif}
+  /* レンジスライダー（外部ライブラリ不使用・自前スタイル） */
+  input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:999px;background:#e4e9f0;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:#2f86c5;cursor:pointer;box-shadow:0 2px 6px rgba(15,28,46,.25);border:3px solid #fff}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#2f86c5;cursor:pointer;border:3px solid #fff}
+  .tab-btn[aria-selected=true]{background:#2f86c5;color:#fff}
+  .tab-btn[aria-selected=false]{background:#fff;color:#1c3354}
+</style>
+</head>
+<body class="text-ink bg-white">
+
+<!-- ===== Nav ===== -->
+<header class="sticky top-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-b border-line">
+  <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2.5 font-serif font-black text-lg text-navy">
+      <span class="w-8 h-8 rounded-lg bg-accent grid place-items-center text-white text-sm font-sans font-bold">M</span>
+      MailBridge
+    </a>
+    <nav class="flex items-center gap-4 md:gap-6 text-sm">
+      <a href="index.html#pricing" class="hidden sm:inline text-slate2 hover:text-accent transition">料金</a>
+      <a href="api-guide.html" class="hidden sm:inline text-slate2 hover:text-accent transition">APIキー取得</a>
+      <a href="spec-guide.html" class="hidden sm:inline text-slate2 hover:text-accent transition">スペックの見方</a>
+      <a href="index.html" class="text-slate2 hover:text-accent transition inline-flex items-center gap-1.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m0 0l7 7m-7-7l7-7"/></svg>トップ
+      </a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="relative overflow-hidden bg-gradient-to-br from-ink-800 via-ink to-ink-900 text-white">
+  <div class="absolute inset-0" style="background:radial-gradient(60% 70% at 80% 0%,rgba(47,134,197,.26),transparent 60%)"></div>
+  <div class="relative max-w-6xl mx-auto px-5 pt-14 pb-12 md:pt-16 md:pb-14">
+    <span class="inline-flex items-center gap-2 text-accent-500 text-xs font-bold tracking-widest mb-4">
+      <span class="w-1.5 h-1.5 rounded-full bg-accent-500"></span>SIMULATOR ／ 導入前シミュレーション
+    </span>
+    <h1 class="text-2xl md:text-4xl font-black leading-[1.4]">入れる前に、<span class="text-accent-500">数字でわかる。</span></h1>
+    <p class="mt-5 text-sm md:text-base text-white/80 leading-relaxed max-w-2xl">
+      AIのAPI料金の目安、お使いのPCでローカルAIが動くか、ぴったりのプラン。3つのタブでその場で試算できます。
+    </p>
+  </div>
+</section>
+
+<!-- ===== Tabs ===== -->
+<div class="bg-mist border-b border-line sticky top-16 z-40">
+  <div class="max-w-6xl mx-auto px-5">
+    <div role="tablist" class="flex gap-2 py-3 overflow-x-auto">
+      <button class="tab-btn shrink-0 rounded-full border border-line px-4 md:px-5 py-2.5 text-sm font-bold transition shadow-card" role="tab" aria-selected="true"  data-tab="api">① API料金を試算</button>
+      <button class="tab-btn shrink-0 rounded-full border border-line px-4 md:px-5 py-2.5 text-sm font-bold transition shadow-card" role="tab" aria-selected="false" data-tab="local">② ローカルAI判定</button>
+      <button class="tab-btn shrink-0 rounded-full border border-line px-4 md:px-5 py-2.5 text-sm font-bold transition shadow-card" role="tab" aria-selected="false" data-tab="plan">③ プラン選択ナビ</button>
+    </div>
+  </div>
+</div>
+
+<main class="max-w-6xl mx-auto px-5 py-10 md:py-14">
+
+  <!-- 読み込み失敗時 -->
+  <div id="loadError" class="hidden rounded-2xl border border-rose-300 bg-rose-50 p-6 text-sm text-rose-800">
+    データ（ai-sim-data.json）の読み込みに失敗しました。このページはWebサーバー（GitHub Pages等）上で開いてください。
+  </div>
+
+  <!-- ===================== TAB 1: API料金 ===================== -->
+  <section id="panel-api" class="tab-panel" role="tabpanel">
+    <div class="grid lg:grid-cols-[1fr_1fr] gap-7">
+      <!-- 入力 -->
+      <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-8">
+        <h2 class="text-xl font-black text-navy mb-1">条件を入力</h2>
+        <p class="text-xs text-slate2 mb-6">スライダーとボタンを動かすと、右側の結果がすぐ更新されます。</p>
+
+        <div class="space-y-7">
+          <div>
+            <div class="flex justify-between items-baseline mb-2">
+              <label class="text-sm font-bold text-navy">1日の受信メール数</label>
+              <span class="text-accent font-black text-lg"><span id="recvVal">30</span><span class="text-xs font-medium text-slate2"> 通/日</span></span>
+            </div>
+            <input type="range" id="recv" min="1" max="200" value="30" class="w-full">
+            <p class="text-[11px] text-slate2 mt-1.5">会社に届くメールの総数。次の「AI処理する割合」で、このうち取引先からの分だけがAIに通ります。</p>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-baseline mb-2">
+              <label class="text-sm font-bold text-navy">AI処理する割合（取引先メールの割合）</label>
+              <span class="text-accent font-black text-lg"><span id="prVal">100</span><span class="text-xs font-medium text-slate2"> %</span></span>
+            </div>
+            <input type="range" id="pr" min="0" max="100" value="100" class="w-full">
+            <p class="text-[11px] text-slate2 mt-1.5">MailBridgeは<strong class="text-navy">顧客マスタに登録した取引先のメールだけ</strong>をAIに通します。広告・迷惑メールには課金されません。</p>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-baseline mb-2">
+              <label class="text-sm font-bold text-navy">メンバー数</label>
+              <span class="text-accent font-black text-lg"><span id="memVal">1</span><span class="text-xs font-medium text-slate2"> 名</span></span>
+            </div>
+            <input type="range" id="mem" min="1" max="50" value="1" class="w-full">
+            <p class="text-[11px] text-slate2 mt-1.5">※API料金はメール処理量で決まります（メンバー数では増減しません）。プラン選びは<a href="#" data-go="plan" class="text-accent underline">タブ③</a>へ。</p>
+            <!-- 要確認：メンバー数とAPI料金の関係は ai-sim-data.json に未定義。costFormula はメール量のみを母数とするため、メンバー数は料金計算に不使用（参考表示）。 -->
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-navy block mb-2">AIプロバイダー</label>
+            <div id="providerBtns" class="grid grid-cols-3 gap-2"></div>
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-navy block mb-2">モデル</label>
+            <select id="modelSel" class="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm"></select>
+            <p id="modelNote" class="text-[11px] text-slate2 mt-1.5"></p>
+          </div>
+
+          <!-- 詳細設定（JSONの既定値） -->
+          <details class="rounded-xl border border-line bg-mist px-4 py-3">
+            <summary class="text-sm font-bold text-navy cursor-pointer">詳細設定（既定値は実データに基づく）</summary>
+            <div class="mt-4 space-y-5">
+              <div>
+                <div class="flex justify-between items-baseline mb-1.5"><label class="text-xs font-bold text-navy">月の営業日数</label><span class="text-sm font-bold text-navy"><span id="wdVal">20</span> 日</span></div>
+                <input type="range" id="wd" min="1" max="31" value="20" class="w-full">
+              </div>
+              <div>
+                <div class="flex justify-between items-baseline mb-1.5"><label class="text-xs font-bold text-navy">返信下書きを作る割合</label><span class="text-sm font-bold text-navy"><span id="replyVal">35</span> %</span></div>
+                <input type="range" id="reply" min="0" max="100" value="35" class="w-full">
+              </div>
+              <div>
+                <div class="flex justify-between items-baseline mb-1.5"><label class="text-xs font-bold text-navy">台帳抽出を行う割合</label><span class="text-sm font-bold text-navy"><span id="extractVal">60</span> %</span></div>
+                <input type="range" id="extract" min="0" max="100" value="60" class="w-full">
+              </div>
+              <label class="flex items-center gap-2 text-xs font-bold text-navy"><input type="checkbox" id="sheets" checked class="w-4 h-4 accent-accent">スプレッドシート連携あり（台帳抽出を含める）</label>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs font-bold text-navy block mb-1.5">為替レート（円/USD）</label>
+                  <input type="number" id="fx" value="155" class="w-full rounded-lg border border-line px-3 py-2 text-sm">
+                </div>
+                <div>
+                  <label class="text-xs font-bold text-navy block mb-1.5">メール本文の長さ</label>
+                  <select id="bucket" class="w-full rounded-lg border border-line px-3 py-2 text-sm">
+                    <option value="light">短め（light）</option>
+                    <option value="typical" selected>標準（typical）</option>
+                    <option value="heavy">長め（heavy）</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- 結果 -->
+      <div class="space-y-5">
+        <div class="rounded-2xl bg-gradient-to-br from-navy to-ink text-white shadow-lg2 p-6 md:p-8">
+          <p class="text-xs font-bold text-accent-500 tracking-widest mb-2">月額API料金の目安</p>
+          <div class="font-serif font-black text-5xl leading-none">¥<span id="resJpy">—</span><span class="text-lg font-sans font-medium text-white/60">/月</span></div>
+          <p class="text-white/55 text-xs mt-2">（約 $<span id="resUsd">—</span> ／ 為替 <span id="resFx">155</span>円換算）</p>
+          <div class="grid grid-cols-2 gap-3 mt-6">
+            <div class="rounded-xl bg-white/[0.06] border border-white/12 p-4">
+              <div class="text-[11px] text-white/60">1日のリクエスト数</div>
+              <div class="font-black text-2xl mt-1"><span id="resReq">—</span><span class="text-xs font-medium text-white/60"> 回/日</span></div>
+            </div>
+            <div class="rounded-xl bg-white/[0.06] border border-white/12 p-4">
+              <div class="text-[11px] text-white/60">AI処理するメール</div>
+              <div class="font-black text-2xl mt-1"><span id="resContact">—</span><span class="text-xs font-medium text-white/60"> 通/日</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 無料枠判定 -->
+        <div id="freeBox" class="rounded-2xl border p-5 text-sm leading-relaxed"></div>
+
+        <!-- プロバイダー特徴 -->
+        <div class="rounded-2xl bg-white border border-line shadow-card p-5">
+          <h3 class="font-bold text-navy text-sm mb-2">このプロバイダーの特徴</h3>
+          <p id="providerNote" class="text-slate2 text-sm leading-relaxed"></p>
+        </div>
+
+        <!-- 注記 -->
+        <div class="rounded-xl bg-mist border border-line p-4 text-[12px] text-slate2 leading-relaxed">
+          <p><strong class="text-navy">この金額は目安です。</strong>実際の料金は各社公式サイトでご確認ください。</p>
+          <p id="disclaimer" class="mt-1"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 2: ローカルAI ===================== -->
+  <section id="panel-local" class="tab-panel hidden" role="tabpanel">
+    <div class="grid lg:grid-cols-[1fr_1fr] gap-7">
+      <!-- 入力 -->
+      <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-8">
+        <h2 class="text-xl font-black text-navy mb-1">お使いのPCを選ぶ</h2>
+        <p class="text-xs text-slate2 mb-2">ローカルAI（Ollama）は<strong class="text-navy">APIキー不要・通信なし・追加料金ゼロ</strong>（電気代のみ）で動かせます。</p>
+        <p class="text-xs mb-6"><a href="spec-guide.html" class="text-accent font-bold underline">スペックの見方がわからない方はこちら →</a></p>
+
+        <div class="space-y-6">
+          <div>
+            <label class="text-sm font-bold text-navy block mb-2">GPU（グラフィックボード）</label>
+            <select id="gpuSel" class="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm">
+              <option value="none">なし（内蔵グラフィックスのみ）</option>
+              <option value="apple">Apple Silicon（M1〜M4 Mac）</option>
+              <option value="nv6">NVIDIA GPU・VRAM 6GB（例 RTX3050/4050 Laptop）</option>
+              <option value="nv8">NVIDIA GPU・VRAM 8GB（例 RTX3060/4060）</option>
+              <option value="nv12">NVIDIA GPU・VRAM 12GB（例 RTX3060 12G/4070）</option>
+              <option value="nv1624">NVIDIA GPU・VRAM 16〜24GB（例 RTX4080/4090）</option>
+            </select>
+          </div>
+
+          <div id="ramWrap">
+            <label class="text-sm font-bold text-navy block mb-2">RAM（メインメモリ）</label>
+            <select id="ramSel" class="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm">
+              <option value="8">8GB</option>
+              <option value="16" selected>16GB</option>
+              <option value="32">32GB</option>
+            </select>
+            <p class="text-[11px] text-slate2 mt-1.5">GPUを使う場合、判定は主にVRAMで決まります。GPUなしの場合はこのRAMで判定します。</p>
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-navy block mb-2">CPU（おおよそ）</label>
+            <select id="cpuSel" class="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm">
+              <option value="unknown">わからない</option>
+              <option value="low">Core i3 / Ryzen 3 相当・古め</option>
+              <option value="mid" selected>Core i5 / Ryzen 5 相当</option>
+              <option value="high">Core i7・i9 / Ryzen 7・9 相当</option>
+            </select>
+            <p class="text-[11px] text-slate2 mt-1.5">※判定の基準はGPU/メモリです。CPUは「GPUなし運用」の速度の参考に使います。</p>
+            <!-- 要確認：CPUの世代別データは ai-sim-data.json に未定義。hardwareTiers は GPU＋メモリで構成されるため、判定はGPU/RAMに基づく。CPU選択は補助的な速度コメントのみに使用。 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 結果 -->
+      <div class="space-y-5">
+        <div class="rounded-2xl bg-gradient-to-br from-navy to-ink text-white shadow-lg2 p-6 md:p-8">
+          <div class="flex items-center justify-between gap-3">
+            <p class="text-xs font-bold text-accent-500 tracking-widest">判定</p>
+            <span id="localRating" class="text-amber-300 text-lg"></span>
+          </div>
+          <div class="font-serif font-black text-3xl md:text-4xl leading-tight mt-2"><span id="localVerdict">—</span></div>
+          <p id="localUseFor" class="text-white/70 text-sm mt-3 leading-relaxed"></p>
+          <div class="grid grid-cols-2 gap-3 mt-6">
+            <div class="rounded-xl bg-white/[0.06] border border-white/12 p-4">
+              <div class="text-[11px] text-white/60">推定処理速度</div>
+              <div class="font-black text-xl mt-1"><span id="localSpeed">—</span><span class="text-xs font-medium text-white/60"> tok/s</span></div>
+            </div>
+            <div class="rounded-xl bg-white/[0.06] border border-white/12 p-4">
+              <div class="text-[11px] text-white/60">月額コスト</div>
+              <div class="font-black text-xl mt-1">¥0<span class="text-xs font-medium text-white/60"> 電気代のみ</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 推奨モデル -->
+        <div class="rounded-2xl bg-white border border-line shadow-card p-6">
+          <h3 class="font-bold text-navy text-sm mb-3">推奨モデルと日本語精度</h3>
+          <div id="localModel"></div>
+          <div class="mt-4">
+            <p class="text-[11px] font-bold text-slate2 mb-1">このPCで動かせるモデル</p>
+            <p id="localCanRun" class="text-sm text-navy"></p>
+          </div>
+          <a href="local-ai-guide.html" class="mt-4 inline-flex items-center gap-1.5 text-accent font-bold text-sm hover:gap-2.5 transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 013 3 3 3 0 01-1 2.2V9h2a3 3 0 010 6h-2v1.8A3 3 0 0112 22a3 3 0 01-3-5.2V15H7a3 3 0 010-6h2V7.2A3 3 0 0112 2z"/></svg>
+            このモデルをPCに入れる手順（ローカルAIの使い方）→
+          </a>
+        </div>
+
+        <!-- タスク適性 -->
+        <div class="rounded-2xl bg-white border border-line shadow-card p-6">
+          <h3 class="font-bold text-navy text-sm mb-3">タスク別の適性</h3>
+          <div id="localFit" class="grid grid-cols-3 gap-3 text-center"></div>
+          <!-- 要確認：◎○△ の表示は hardwareTiers.useFor / verdict / rating を簡略化した目安。元データの文章判断に基づく。 -->
+        </div>
+
+        <div id="localWarn" class="hidden rounded-xl bg-amber-50 border border-amber-300 p-4 text-[12px] text-amber-900 leading-relaxed"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 3: プラン ===================== -->
+  <section id="panel-plan" class="tab-panel hidden" role="tabpanel">
+    <div class="grid lg:grid-cols-[1fr_1fr] gap-7">
+      <!-- 入力 -->
+      <div class="rounded-2xl bg-white border border-line shadow-card p-6 md:p-8">
+        <h2 class="text-xl font-black text-navy mb-1">使い方を選ぶ</h2>
+        <p class="text-xs text-slate2 mb-6">条件を選ぶと、ぴったりのプランをご提案します。</p>
+
+        <div class="space-y-7">
+          <div>
+            <div class="flex justify-between items-baseline mb-2">
+              <label class="text-sm font-bold text-navy">使うメンバー数</label>
+              <span class="text-accent font-black text-lg"><span id="pMemVal">1</span><span class="text-xs font-medium text-slate2"> 名</span></span>
+            </div>
+            <input type="range" id="pMem" min="1" max="20" value="1" class="w-full">
+          </div>
+          <div>
+            <div class="flex justify-between items-baseline mb-2">
+              <label class="text-sm font-bold text-navy">取引先ドメイン数</label>
+              <span class="text-accent font-black text-lg"><span id="pDomVal">1</span><span class="text-xs font-medium text-slate2"> 件</span></span>
+            </div>
+            <input type="range" id="pDom" min="1" max="12" value="1" class="w-full">
+            <p class="text-[11px] text-slate2 mt-1.5">処理したい取引先のメールドメインの数。</p>
+          </div>
+          <label class="flex items-center justify-between gap-2 rounded-xl border border-line bg-mist px-4 py-3 cursor-pointer">
+            <span class="text-sm font-bold text-navy">スプレッドシート連携を使う<span class="block text-[11px] font-normal text-slate2">受注台帳への自動入力（Googleスプレッド・GAS）</span></span>
+            <input type="checkbox" id="pSheets" class="w-5 h-5 accent-accent">
+          </label>
+          <label class="flex items-center justify-between gap-2 rounded-xl border border-line bg-mist px-4 py-3 cursor-pointer">
+            <span class="text-sm font-bold text-navy">自動返信（自動送信）を使う<span class="block text-[11px] font-normal text-slate2">定型メールの返信を自動で送る</span></span>
+            <input type="checkbox" id="pAuto" class="w-5 h-5 accent-accent">
+          </label>
+        </div>
+      </div>
+
+      <!-- 結果 -->
+      <div class="space-y-5">
+        <div class="rounded-2xl bg-gradient-to-br from-navy to-ink text-white shadow-lg2 p-6 md:p-8">
+          <p class="text-xs font-bold text-accent-500 tracking-widest mb-2">おすすめプラン</p>
+          <div class="flex items-baseline gap-3 flex-wrap">
+            <span id="planName" class="font-serif font-black text-3xl md:text-4xl">—</span>
+            <span class="font-serif font-black text-2xl">¥<span id="planPrice">—</span><span class="text-sm font-sans font-medium text-white/60">/月</span></span>
+          </div>
+          <p id="planReason" class="text-white/70 text-sm mt-3 leading-relaxed"></p>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-line shadow-card p-6">
+          <h3 class="font-bold text-navy text-sm mb-3">このプランでできること</h3>
+          <ul id="planFeatures" class="space-y-2 text-sm text-ink"></ul>
+        </div>
+
+        <div id="planUpgrade" class="rounded-2xl bg-accent-soft border border-accent/30 p-5 text-sm text-navy leading-relaxed"></div>
+
+        <div class="rounded-xl bg-mist border border-line p-4 text-[12px] text-slate2 leading-relaxed">
+          <strong class="text-navy">API料金は別途かかります。</strong><a href="#" data-go="api" class="text-accent underline">タブ①</a>で確認できます。お申し込み・プラン変更・解約はアプリ内からいつでも可能です。
+          <!-- 要確認：プラン定義（料金・上限・機能）は ai-sim-data.json に未定義。index.html の料金表およびアプリのプラン条件（Settings.tsx）に基づく。 -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== Footer ===== -->
+<footer class="bg-ink-900 text-white/70 pt-14 pb-8">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="grid md:grid-cols-[1.4fr_1fr_1fr] gap-10">
+      <div>
+        <div class="flex items-center gap-2.5 font-serif font-black text-lg text-white mb-3">
+          <span class="w-8 h-8 rounded-lg bg-accent grid place-items-center text-white text-sm font-sans font-bold">M</span>MailBridge
+        </div>
+        <p class="text-sm text-white/55 leading-relaxed max-w-sm">メールを見て、仕分けて、下書きまで。中小建設業のメール業務をAIが下ごしらえするWindowsアプリ。</p>
+      </div>
+      <div>
+        <h4 class="text-white font-bold text-sm mb-3">シミュレーション</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="simulator.html" class="hover:text-accent transition">API料金を試算</a></li>
+          <li><a href="simulator.html#local" class="hover:text-accent transition">ローカルAI判定</a></li>
+          <li><a href="local-ai-guide.html" class="hover:text-accent transition">ローカルAIの使い方</a></li>
+          <li><a href="api-guide.html" class="hover:text-accent transition">APIキー取得ガイド</a></li>
+          <li><a href="spec-guide.html" class="hover:text-accent transition">PCスペックの見方</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-bold text-sm mb-3">規約・お問い合わせ</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="tokushoho.html" class="hover:text-accent transition">特定商取引法に基づく表記</a></li>
+          <li><a href="terms.html" class="hover:text-accent transition">利用規約</a></li>
+          <li><a href="privacy.html" class="hover:text-accent transition">プライバシーポリシー</a></li>
+          <li><a href="mailto:yh.006611@gmail.com" class="hover:text-accent transition">お問い合わせ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/45">
+      <p>運営者：本間　裕太</p>
+      <p>© 2026 MailBridge. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ===== データ読み込み（ai-sim-data.json を正とする） =====
+let DATA = null;
+
+// プラン定義は ai-sim-data.json に存在しないため、index.html の料金表／アプリのプラン条件から定義。
+// 要確認：プラン料金・上限・機能の出典は index.html（料金表）と Settings.tsx（multiMember=プロ以上 等）。
+const PLANS = [
+  { id:'free',      label:'無料',           price:0,     domains:1,        members:1,        sheets:false, autoReply:false,
+    features:['メールアカウント 1','取引先ドメイン 1件','メンバー 1名','メール分類・要確認・下書き','ローカルExcel出力','差出人ダイレクト 1枠','返信テンプレート'] },
+  { id:'standard',  label:'スタンダード',   price:3000,  domains:3,        members:1,        sheets:true,  autoReply:false,
+    features:['無料プランの全機能','メールアカウント 3','取引先ドメイン 3件','Googleスプレッド・GAS連携','受注台帳への自動入力','差出人ダイレクト 3枠'] },
+  { id:'pro',       label:'プロ',           price:10000, domains:5,        members:5,        sheets:true,  autoReply:true,
+    features:['スタンダードの全機能','メールアカウント 5','取引先ドメイン 5件','メンバー 5名','自動返信の自動送信','プロンプト編集','差出人ダイレクト 5枠'] },
+  { id:'unlimited', label:'アンリミテッド', price:30000, domains:Infinity, members:Infinity, sheets:true,  autoReply:true,
+    features:['メールアカウント 無制限','取引先ドメイン 無制限','メンバー 無制限','差出人ダイレクト 無制限','全機能を利用可能'] },
+];
+
+const PROVIDER_LABEL = { gemini:'Google Gemini API', openai:'OpenAI API', claude:'Anthropic Claude API' };
+// プロバイダー特徴（仕様書の比較＋cloudModels.recommendedFor を併用）
+const PROVIDER_NOTE = {
+  gemini:'無料枠があり、クレジットカード登録なしで今すぐ始められます。日本語・コスパ・速度のバランスがよく、初心者にいちばんおすすめです。MailBridgeの既定は Gemini 2.5 Flash。',
+  openai:'実績が豊富で安定。利用にはクレジットカード登録（従量課金）が必要です。',
+  claude:'日本語の文章品質が高く、ていねいな返信づくりに向きます。利用にはクレジットカード登録（従量課金）が必要です。',
+};
+
+fetch('ai-sim-data.json')
+  .then(r => { if(!r.ok) throw new Error('http'); return r.json(); })
+  .then(d => { DATA = d; initAll(); })
+  .catch(() => { document.getElementById('loadError').classList.remove('hidden'); });
+
+// ===== タブ切替 =====
+const tabBtns = document.querySelectorAll('.tab-btn');
+function showTab(name){
+  tabBtns.forEach(b => b.setAttribute('aria-selected', b.dataset.tab === name ? 'true':'false'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+  const panel = document.getElementById('panel-'+name);
+  if(panel) panel.classList.remove('hidden');
+}
+tabBtns.forEach(b => b.addEventListener('click', () => { showTab(b.dataset.tab); history.replaceState(null,'', b.dataset.tab==='api'?'#':'#'+b.dataset.tab); }));
+document.querySelectorAll('[data-go]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); showTab(a.dataset.go); window.scrollTo({top:0,behavior:'smooth'}); }));
+
+function initAll(){
+  // ハッシュで初期タブ（index.html#local 等から）
+  const h = (location.hash||'').replace('#','');
+  showTab(h==='local'?'local': h==='plan'?'plan':'api');
+  initApi();
+  initLocal();
+  initPlan();
+}
+
+// ===================== TAB 1: API料金 =====================
+let curProvider = 'gemini';
+function initApi(){
+  // 為替・本文長の既定値をJSONから
+  document.getElementById('fx').value = DATA.pricing.usdJpyDefault;
+  const sc = DATA.defaultScenario;
+  document.getElementById('wd').value = sc.workdaysPerMonth;
+  document.getElementById('reply').value = Math.round(sc.replyRatio*100);
+  document.getElementById('extract').value = Math.round(sc.extractRatio*100);
+  document.getElementById('sheets').checked = !!sc.sheetsEnabled;
+  document.getElementById('bucket').value = sc.scenarioBucket || 'typical';
+  document.getElementById('recv').value = sc.customerEmailsPerDay; // 既定の取引先メール数を初期母数に（受信×100%）
+  // 受信総数の既定は ai-sim-data.json に未定義のため、JSONの取引先メール数(30)を「受信30×処理100%」として初期表示。
+  document.getElementById('disclaimer').textContent = DATA.pricing.disclaimer + '（価格 asOf: ' + DATA.pricing.asOf + '）';
+
+  // プロバイダーボタン
+  const provs = [...new Set(DATA.cloudModels.map(m => m.provider))];
+  const wrap = document.getElementById('providerBtns');
+  wrap.innerHTML = provs.map(p =>
+    `<button type="button" data-prov="${p}" class="prov-btn rounded-xl border border-line px-2 py-2.5 text-xs font-bold transition">${PROVIDER_LABEL[p]||p}</button>`
+  ).join('');
+  wrap.querySelectorAll('.prov-btn').forEach(b => b.addEventListener('click', () => { curProvider = b.dataset.prov; syncProvider(); calcApi(); }));
+
+  ['recv','pr','mem','wd','reply','extract','fx','bucket'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => { syncLabels(); calcApi(); });
+  });
+  document.getElementById('sheets').addEventListener('change', calcApi);
+  document.getElementById('modelSel').addEventListener('change', calcApi);
+
+  syncProvider(); syncLabels(); calcApi();
+}
+function syncLabels(){
+  document.getElementById('recvVal').textContent    = document.getElementById('recv').value;
+  document.getElementById('prVal').textContent      = document.getElementById('pr').value;
+  document.getElementById('memVal').textContent     = document.getElementById('mem').value;
+  document.getElementById('wdVal').textContent      = document.getElementById('wd').value;
+  document.getElementById('replyVal').textContent   = document.getElementById('reply').value;
+  document.getElementById('extractVal').textContent = document.getElementById('extract').value;
+}
+function syncProvider(){
+  document.querySelectorAll('.prov-btn').forEach(b => {
+    const on = b.dataset.prov === curProvider;
+    b.style.background = on ? '#2f86c5' : '#fff';
+    b.style.color = on ? '#fff' : '#1c3354';
+    b.style.borderColor = on ? '#2f86c5' : '#e4e9f0';
+  });
+  const models = DATA.cloudModels.filter(m => m.provider === curProvider);
+  const sel = document.getElementById('modelSel');
+  sel.innerHTML = models.map(m => `<option value="${m.id}">${m.label}（${m.tier}）</option>`).join('');
+  document.getElementById('providerNote').textContent = PROVIDER_NOTE[curProvider] || '';
+}
+function currentModel(){
+  const id = document.getElementById('modelSel').value;
+  return DATA.cloudModels.find(m => m.id === id) || DATA.cloudModels.find(m => m.provider===curProvider);
+}
+function calcApi(){
+  const recv   = +document.getElementById('recv').value;
+  const pr     = +document.getElementById('pr').value / 100;
+  const wd     = +document.getElementById('wd').value;
+  const reply  = +document.getElementById('reply').value / 100;
+  const extract= +document.getElementById('extract').value / 100;
+  const sheets = document.getElementById('sheets').checked;
+  const fx     = +document.getElementById('fx').value || DATA.pricing.usdJpyDefault;
+  const bucket = document.getElementById('bucket').value;
+  const c = DATA.appUsage.calls;
+
+  const contactDaily = recv * pr;            // AIに通る取引先メール/日
+  const N = wd * contactDaily;               // 月間母数（costFormula: N = workdays × customerEmailsPerDay）
+
+  // costFormula.steps に従う
+  const inT  = N*c.classify.inputTokens[bucket]
+             + N*reply*c.reply.inputTokens[bucket]
+             + (sheets ? N*extract*c.extract.inputTokens[bucket] : 0);
+  const outT = N*c.classify.outputTokens[bucket]
+             + N*reply*c.reply.outputTokens[bucket]
+             + (sheets ? N*extract*c.extract.outputTokens[bucket] : 0);
+
+  const m = currentModel();
+  const usd = inT/1e6*m.inputPer1M + outT/1e6*m.outputPer1M;
+  const jpy = usd * fx;
+
+  const dailyReq = contactDaily * (1 + reply + (sheets ? extract : 0));
+
+  document.getElementById('resJpy').textContent  = Math.round(jpy).toLocaleString();
+  document.getElementById('resUsd').textContent  = usd.toFixed(2);
+  document.getElementById('resFx').textContent   = fx;
+  document.getElementById('resReq').textContent  = Math.round(dailyReq).toLocaleString();
+  document.getElementById('resContact').textContent = Math.round(contactDaily).toLocaleString();
+  document.getElementById('providerNote').textContent = (PROVIDER_NOTE[curProvider]||'') + ' 選択中のモデル：' + m.label + '（' + m.recommendedFor + '）';
+
+  // 無料枠判定（具体的上限はJSONに未定義のため定性判定）
+  // 要確認：無料枠の具体的な上限値・期間は ai-sim-data.json に未定義。各社公式で要確認。
+  const fb = document.getElementById('freeBox');
+  if(curProvider === 'gemini'){
+    fb.className = 'rounded-2xl border border-emerald-300 bg-emerald-50 p-5 text-sm leading-relaxed text-emerald-900';
+    fb.innerHTML = '<strong>✅ 無料枠の対象になり得ます。</strong>Geminiはクレジットカード登録なしで始められる無料枠があります（具体的な上限は時期により変わるため<a href="https://ai.google.dev/pricing" target="_blank" rel="noopener" class="underline">公式</a>でご確認ください）。上の金額は無料枠を考慮しない概算です。';
+  } else {
+    fb.className = 'rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm leading-relaxed text-amber-900';
+    fb.innerHTML = '<strong>ℹ️ 無料枠なし（従量課金）。</strong>'+PROVIDER_LABEL[curProvider]+'はクレジットカード登録が必須で、使った分だけ上の金額がかかります。';
+  }
+}
+
+// ===================== TAB 2: ローカルAI =====================
+// 選択肢は hardwareTiers から自動生成（JSONに段を足すだけで増える）。
+function initLocal(){
+  const nvidia = DATA.hardwareTiers.filter(t => t.gpu==='nvidia').sort((a,b)=>a.vram-b.vram);
+  const apple  = DATA.hardwareTiers.filter(t => t.gpu==='apple').sort((a,b)=>a.ram-b.ram);
+  const cpus   = DATA.hardwareTiers.filter(t => t.gpu==='none').sort((a,b)=>a.ram-b.ram);
+
+  let gpuHtml = '<option value="none">なし（内蔵グラフィックスのみ）</option>';
+  if(apple.length)  gpuHtml += '<optgroup label="Apple Silicon">' + apple.map(t  => `<option value="${t.key}">${t.label}</option>`).join('') + '</optgroup>';
+  if(nvidia.length) gpuHtml += '<optgroup label="NVIDIA GPU">'    + nvidia.map(t => `<option value="${t.key}">${t.label}</option>`).join('') + '</optgroup>';
+  document.getElementById('gpuSel').innerHTML = gpuHtml;
+
+  document.getElementById('ramSel').innerHTML = cpus.map(t =>
+    `<option value="${t.ram}"${t.ram===16?' selected':''}>${t.ram}GB</option>`).join('');
+
+  ['gpuSel','ramSel','cpuSel'].forEach(id => document.getElementById(id).addEventListener('change', calcLocal));
+  calcLocal();
+}
+// GPU/RAM選択 → hardwareTier を解決（GPUありはキー直結、GPUなしはRAMで判定）
+function resolveTier(gpuVal, ram){
+  if(gpuVal !== 'none') return DATA.hardwareTiers.find(t => t.key === gpuVal);
+  return DATA.hardwareTiers.find(t => t.gpu==='none' && t.ram === +ram)
+      || DATA.hardwareTiers.find(t => t.gpu==='none');
+}
+function calcLocal(){
+  const gpu = document.getElementById('gpuSel').value;
+  const ram = document.getElementById('ramSel').value;
+  const cpu = document.getElementById('cpuSel').value;
+  // GPUがある場合はRAM選択を補助的に（判定はVRAM基準）
+  document.getElementById('ramWrap').style.opacity = (gpu==='none') ? '1' : '.6';
+
+  const tier = resolveTier(gpu, ram) || DATA.hardwareTiers[0];
+  const key = tier.key;
+
+  // 星評価
+  document.getElementById('localRating').textContent = '★'.repeat(tier.rating) + '☆'.repeat(5 - tier.rating);
+  document.getElementById('localVerdict').textContent = tier.verdict;
+  document.getElementById('localUseFor').textContent = tier.useFor;
+  document.getElementById('localSpeed').textContent = tier.tokPerSec;
+
+  // 推奨モデル＝MailBridge推奨ローカル既定の qwen2.5:7b（JSON localAI）。日本語が得意。
+  const qwen = DATA.localAI.models.find(m => m.id === 'qwen2.5:7b') || DATA.localAI.models[0];
+  document.getElementById('localModel').innerHTML =
+    `<div class="rounded-xl bg-accent-soft border border-accent/30 p-4">
+       <div class="flex items-center gap-2 mb-1"><span class="font-bold text-navy">${qwen.label}</span><span class="text-[10px] bg-accent text-white rounded-full px-2 py-0.5">推奨</span></div>
+       <div class="text-xs text-slate2 leading-relaxed">日本語精度：<strong class="text-navy">${qwen.japanese}</strong><br>得意：${qwen.good}<br>容量：${qwen.diskQ4}／必要RAM(CPU運用)：${qwen.minRamCpu}／必要VRAM(GPU運用)：${qwen.minVramGpu}</div>
+     </div>`;
+  document.getElementById('localCanRun').textContent = tier.canRun.join('、 ');
+
+  // タスク適性（hardwareTiers.useFor/verdict/rating を簡略化）
+  const fit = ratingToFit(tier.rating);
+  const fitBox = document.getElementById('localFit');
+  fitBox.innerHTML = [['分類',fit.cls],['抽出',fit.ext],['返信',fit.rep]].map(([k,v]) =>
+    `<div class="rounded-xl border border-line bg-mist p-3"><div class="text-2xl font-black ${v.color}">${v.mark}</div><div class="text-xs text-slate2 mt-1">${k}</div></div>`
+  ).join('');
+
+  // 注意（VRAM 6GB／CPU運用／目安段）
+  const warn = document.getElementById('localWarn');
+  const msgs = [];
+  if(tier.verify){ msgs.push('この構成の速度・判定は一般的なハードウェア性能からの目安です（実機ベンチではありません）。'); }
+  if(key === 'nv_6gb'){ msgs.push(DATA.localAI.contextNote); }
+  else if(gpu === 'none'){ msgs.push(DATA.localAI.speedNote + (cpu==='low' ? ' お選びのCPUは古めのため、特に入力処理に時間がかかります。' : '')); }
+  if(msgs.length){ warn.textContent = '⚠ ' + msgs.join(' / '); warn.classList.remove('hidden'); } else { warn.classList.add('hidden'); }
+}
+function ratingToFit(r){
+  const ok   = {mark:'◎', color:'text-emerald-600'};
+  const good = {mark:'○', color:'text-accent'};
+  const hard = {mark:'△', color:'text-amber-600'};
+  const no   = {mark:'×', color:'text-rose-500'};
+  if(r >= 4) return { cls:ok,   ext:ok,   rep:good };
+  if(r === 3)return { cls:ok,   ext:good, rep:hard };
+  if(r === 2)return { cls:good, ext:good, rep:hard };
+  return        { cls:hard, ext:hard, rep:no };
+}
+
+// ===================== TAB 3: プラン =====================
+function initPlan(){
+  ['pMem','pDom'].forEach(id => document.getElementById(id).addEventListener('input', () => { syncPlanLabels(); calcPlan(); }));
+  ['pSheets','pAuto'].forEach(id => document.getElementById(id).addEventListener('change', calcPlan));
+  syncPlanLabels(); calcPlan();
+}
+function syncPlanLabels(){
+  document.getElementById('pMemVal').textContent = document.getElementById('pMem').value;
+  document.getElementById('pDomVal').textContent = document.getElementById('pDom').value;
+}
+function pickPlan(members, domains, sheets, autoReply){
+  return PLANS.find(p =>
+    members <= p.members &&
+    domains <= p.domains &&
+    (!sheets   || p.sheets) &&
+    (!autoReply|| p.autoReply)
+  ) || PLANS[PLANS.length - 1];
+}
+function calcPlan(){
+  const members = +document.getElementById('pMem').value;
+  const domains = +document.getElementById('pDom').value;
+  const sheets  = document.getElementById('pSheets').checked;
+  const auto    = document.getElementById('pAuto').checked;
+
+  const plan = pickPlan(members, domains, sheets, auto);
+  document.getElementById('planName').textContent  = plan.label;
+  document.getElementById('planPrice').textContent = plan.price.toLocaleString();
+
+  // 理由
+  const reasons = [];
+  if(members >= 2) reasons.push(members+'名で使う（複数メンバーはプロ以上）');
+  if(sheets)       reasons.push('スプレッドシート連携（スタンダード以上）');
+  if(auto)         reasons.push('自動返信の自動送信（プロ以上）');
+  if(domains > 1)  reasons.push('取引先ドメイン'+domains+'件');
+  document.getElementById('planReason').textContent = reasons.length
+    ? 'ご選択の条件（' + reasons.join('／') + '）を満たす最小プランです。'
+    : 'まずはこのプランで十分に始められます。';
+
+  document.getElementById('planFeatures').innerHTML = plan.features.map(f =>
+    `<li class="flex gap-2"><svg class="shrink-0 mt-1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f86c5" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>${f}</li>`
+  ).join('');
+
+  // 上位プラン移行目安
+  const idx = PLANS.indexOf(plan);
+  const up = document.getElementById('planUpgrade');
+  if(idx < PLANS.length - 1){
+    const next = PLANS[idx+1];
+    const tips = [];
+    if(plan.domains !== Infinity) tips.push('取引先ドメインが'+plan.domains+'件を超える');
+    if(plan.members !== Infinity) tips.push('メンバーが'+plan.members+'名を超える');
+    if(!plan.sheets && next.sheets) tips.push('スプレッドシート連携を使う');
+    if(!plan.autoReply && next.autoReply) tips.push('自動返信の自動送信を使う');
+    up.innerHTML = '<strong>上位プランへの移行目安：</strong>' + tips.join('、または') + ' 場合は「' + next.label + '（¥' + next.price.toLocaleString() + '/月）」へ。';
+  } else {
+    up.innerHTML = '<strong>最上位プランです。</strong>すべての機能を上限なくご利用いただけます。';
+  }
+}
+</script>
+</body>
+</html>
