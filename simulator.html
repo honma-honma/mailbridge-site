@@ -119,7 +119,7 @@
               <label class="text-sm font-bold text-navy">1日の受信メール数</label>
               <span class="text-accent font-black text-lg"><span id="recvVal">30</span><span class="text-xs font-medium text-slate2"> 通/日</span></span>
             </div>
-            <input type="range" id="recv" min="1" max="200" value="30" class="w-full">
+            <input type="range" id="recv" min="1" max="1000" value="30" class="w-full">
             <p class="text-[11px] text-slate2 mt-1.5">会社に届くメールの総数。次の「AI処理する割合」で、このうち取引先からの分だけがAIに通ります。</p>
           </div>
 
@@ -294,10 +294,21 @@
 
         <!-- 推奨モデル -->
         <div class="rounded-2xl bg-white border border-line shadow-card p-6">
-          <h3 class="font-bold text-navy text-sm mb-3">推奨モデルと日本語精度</h3>
-          <div id="localModel"></div>
+          <h3 class="font-bold text-navy text-sm mb-3">おすすめモデルと、使える最大</h3>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div class="rounded-xl bg-accent-soft border border-accent/30 p-4">
+              <span class="text-[10px] bg-accent text-white rounded-full px-2 py-0.5">おすすめ</span>
+              <div class="font-bold text-navy mt-2" id="localRecModel">—</div>
+              <div class="text-xs text-slate2 leading-relaxed mt-1" id="localRecDetail"></div>
+            </div>
+            <div class="rounded-xl bg-mist border border-line p-4">
+              <span class="text-[10px] bg-navy text-white rounded-full px-2 py-0.5">使える最大</span>
+              <div class="font-bold text-navy mt-2" id="localMaxModel">—</div>
+              <div class="text-xs text-slate2 leading-relaxed mt-1">このPCで動かせる範囲の上限の目安。大きいほど高品質ですが、速度は落ちます。</div>
+            </div>
+          </div>
           <div class="mt-4">
-            <p class="text-[11px] font-bold text-slate2 mb-1">このPCで動かせるモデル</p>
+            <p class="text-[11px] font-bold text-slate2 mb-1">このPCで動かせるモデル（全体）</p>
             <p id="localCanRun" class="text-sm text-navy"></p>
           </div>
           <a href="local-ai-guide.html" class="mt-4 inline-flex items-center gap-1.5 text-accent font-bold text-sm hover:gap-2.5 transition-all">
@@ -612,11 +623,12 @@ function calcLocal(){
 
   // 推奨モデル＝MailBridge推奨ローカル既定の qwen2.5:7b（JSON localAI）。日本語が得意。
   const qwen = DATA.localAI.models.find(m => m.id === 'qwen2.5:7b') || DATA.localAI.models[0];
-  document.getElementById('localModel').innerHTML =
-    `<div class="rounded-xl bg-accent-soft border border-accent/30 p-4">
-       <div class="flex items-center gap-2 mb-1"><span class="font-bold text-navy">${qwen.label}</span><span class="text-[10px] bg-accent text-white rounded-full px-2 py-0.5">推奨</span></div>
-       <div class="text-xs text-slate2 leading-relaxed">日本語精度：<strong class="text-navy">${qwen.japanese}</strong><br>得意：${qwen.good}<br>容量：${qwen.diskQ4}／必要RAM(CPU運用)：${qwen.minRamCpu}／必要VRAM(GPU運用)：${qwen.minVramGpu}</div>
-     </div>`;
+  document.getElementById('localRecModel').textContent = qwen.label;
+  document.getElementById('localRecDetail').innerHTML =
+    `日本語：<strong class="text-navy">${qwen.japanese}</strong><br>得意：${qwen.good}`;
+  // 使える最大＝tier.canRun の最後の要素（最も大きいモデル）を目安として表示。
+  const maxModel = tier.canRun[tier.canRun.length - 1];
+  document.getElementById('localMaxModel').textContent = maxModel;
   document.getElementById('localCanRun').textContent = tier.canRun.join('、 ');
 
   // タスク適性（hardwareTiers.useFor/verdict/rating を簡略化）
